@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hub Educacional - Sistema Completo</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #1e2a38;
+      --menu-bg: #2c3e50;
+      --text-color: #e0e0e0;
+      --accent-color: #5d8aa8;
+      --accent-light: #7ea5c4;
+      --hover-bg: rgba(255, 255, 255, 0.08);
+      --success-color: #4caf50;
+      --error-color: #e57373;
+      --card-bg: rgba(44, 62, 80, 0.85);
+      --admin-bg: #1a252f;
+      --admin-accent: #8a6d3b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', 'Arial', sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      background: var(--bg-color);
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    /* Animação de entrada */
+    #entryAnimation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 5000;
+      background: var(--bg-color);
+      animation: fadeOutAnimation 1.2s ease-in-out forwards;
+      animation-delay: 1.8s;
+    }
+    
+    .entry-logo {
+      font-size: 4.5rem;
+      color: var(--accent-color);
+      margin-bottom: 20px;
+      animation: logoAnimation 1.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    
+    .entry-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: 600;
+      color: var(--text-color);
+      text-align: center;
+      max-width: 90%;
+      animation: titleAnimation 1.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      animation-delay: 0.3s;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    
+    .entry-subtitle {
+      font-size: 1.2rem;
+      color: var(--accent-light);
+      margin-top: 15px;
+      animation: subtitleAnimation 1.2s ease-out forwards;
+      animation-delay: 0.8s;
+      opacity: 0;
+    }
+    
+    @keyframes logoAnimation {
+      0% { opacity: 0; transform: translateY(30px) scale(0.9); }
+      70% { opacity: 1; transform: translateY(-10px) scale(1.05); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    @keyframes titleAnimation {
+      0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+      70% { opacity: 1; transform: translateY(-5px) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    @keyframes subtitleAnimation {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeOutAnimation {
+      0% { opacity: 1; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+
+    /* Tela de ativação */
+    #activationScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      background: rgba(26, 38, 50, 0.95);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      opacity: 0;
+      animation: activateFadeIn 0.8s ease-out forwards;
+      animation-delay: 2s;
+      display: none;
+    }
+    
+    @keyframes activateFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .activation-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 40px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      animation: fadeIn 0.6s ease-out;
+      border: 1px solid rgba(93, 138, 168, 0.3);
+      opacity: 0;
+      transform: translateY(15px);
+      animation: cardAppear 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      animation-delay: 2.2s;
+    }
+    
+    @keyframes cardAppear {
+      0% { opacity: 0; transform: translateY(15px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .activation-card h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      margin-bottom: 25px;
+      color: var(--text-color);
+    }
+    
+    .activation-card p {
+      font-size: 1rem;
+      margin-bottom: 25px;
+      line-height: 1.6;
+      color: #c0c0c0;
+    }
+    
+    .activation-form {
+      margin: 25px 0;
+    }
+    
+    .key-input {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid rgba(93, 138, 168, 0.3);
+      background: rgba(30, 42, 56, 0.4);
+      border-radius: 10px;
+      font-size: 1.1rem;
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+      text-align: center;
+      opacity: 0;
+      animation: inputAppear 0.6s ease-out forwards;
+      animation-delay: 2.4s;
+    }
+    
+    @keyframes inputAppear {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    .key-input:focus {
+      outline: none;
+      border-color: var(--accent-light);
+      box-shadow: 0 0 0 3px rgba(93, 138, 168, 0.3);
+    }
+    
+    .activate-btn {
+      background: var(--accent-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 10px;
+      padding: 16px 40px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(93, 138, 168, 0.3);
+      letter-spacing: 1px;
+      width: 100%;
+      opacity: 0;
+      animation: buttonAppear 0.6s ease-out forwards;
+      animation-delay: 2.6s;
+    }
+    
+    @keyframes buttonAppear {
+      0% { opacity: 0; transform: translateY(15px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    .activate-btn:hover {
+      background: var(--accent-light);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(93, 138, 168, 0.4);
+    }
+    
+    .activate-btn:active {
+      transform: translateY(0);
+    }
+    
+    .activation-message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      display: none;
+    }
+    
+    .activation-success {
+      background: rgba(76, 175, 80, 0.15);
+      border: 1px solid var(--success-color);
+      color: #c8e6c9;
+    }
+    
+    .activation-error {
+      background: rgba(229, 115, 115, 0.15);
+      border: 1px solid var(--error-color);
+      color: #ffcdd2;
+    }
+    
+    /* Painel de administração */
+    #adminPanel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--admin-bg);
+      z-index: 3000;
+      display: none;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .admin-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(26, 37, 47, 0.9);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(138, 109, 59, 0.5);
+    }
+    
+    .admin-header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(138, 109, 59, 0.3);
+    }
+    
+    .admin-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--admin-accent);
+      margin-bottom: 10px;
+    }
+    
+    .admin-header p {
+      color: #a0aec0;
+    }
+    
+    .admin-section {
+      margin-bottom: 30px;
+      background: rgba(35, 45, 55, 0.7);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(138, 109, 59, 0.2);
+    }
+    
+    .admin-section h3 {
+      color: var(--admin-accent);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .keys-list {
+      max-height: 200px;
+      overflow-y: auto;
+      background: rgba(25, 35, 45, 0.5);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .key-item {
+      padding: 10px;
+      border-bottom: 1px solid rgba(138, 109, 59, 0.2);
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .key-item:last-child {
+      border-bottom: none;
+    }
+    
+    .key-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .key-actions button {
+      background: none;
+      border: none;
+      color: #a0aec0;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    
+    .key-actions button:hover {
+      color: var(--admin-accent);
+    }
+    
+    .json-upload {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .json-upload input[type="file"] {
+      display: none;
+    }
+    
+    .upload-btn {
+      background: rgba(138, 109, 59, 0.2);
+      border: 1px dashed var(--admin-accent);
+      color: #d7c29e;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .upload-btn:hover {
+      background: rgba(138, 109, 59, 0.3);
+    }
+    
+    .admin-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .admin-btn {
+      padding: 12px 25px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .admin-btn.primary {
+      background: var(--admin-accent);
+      color: var(--text-color);
+    }
+    
+    .admin-btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-color);
+    }
+    
+    .admin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Estilos para o hub principal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      background-color: var(--menu-bg);
+      padding: 20px;
+      z-index: 1000;
+      transition: transform 0.3s ease, width 0.3s ease;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.8s ease-out;
+      display: none;
+    }
+
+    .modal.minimized {
+      width: 60px;
+    }
+
+    .modal-content {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 10px;
+      transition: transform 0.3s ease;
+    }
+
+    .toggle-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .panel-title {
+      margin-left: 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      font-family: 'Playfair Display', serif;
+      transition: opacity 0.3s ease;
+      color: var(--text-color);
+    }
+
+    .modal.minimized .panel-title {
+      opacity: 0;
+    }
+
+    .menu {
+      list-style: none;
+      flex-grow: 1;
+    }
+
+    .menu li {
+      margin: 8px 0;
+    }
+
+    .menu li a {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      text-decoration: none;
+      color: var(--text-color);
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .menu li a:hover,
+    .menu li a:focus {
+      background: var(--hover-bg);
+      outline: none;
+      transform: translateX(5px);
+    }
+
+    .menu li a.active {
+      background: var(--hover-bg);
+      border-left: 4px solid var(--accent-color);
+    }
+
+    .menu li a i {
+      width: 24px;
+      text-align: center;
+      margin-right: 15px;
+    }
+
+    .menu li a span {
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.minimized .menu li a span {
+      opacity: 0;
+    }
+
+    .content {
+      flex: 1;
+      margin-left: 250px;
+      height: 100vh;
+      transition: margin-left 0.3s ease;
+      position: relative;
+      animation: slideIn 0.8s ease-out;
+      display: none;
+      z-index: 100;
+    }
+
+    .content.minimized {
+      margin-left: 60px;
+    }
+
+    .loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      z-index: 10;
+    }
+
+    .loader.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--text-color);
+      border-top-color: var(--accent-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: var(--bg-color);
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      border-radius: 8px;
+      background: var(--menu-bg);
+      color: var(--text-color);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 10000;
+      transform: translateX(150%);
+      transition: transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid var(--accent-color);
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      border-left-color: var(--success-color);
+    }
+    
+    .notification.error {
+      border-left-color: var(--error-color);
+    }
+    
+    .notification i {
+      font-size: 1.2rem;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Botão para voltar ao hub */
+    .back-to-hub {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: var(--admin-accent);
+      color: var(--text-color);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 1010;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    
+    /* Animação especial para o painel admin */
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(138, 109, 59, 0.7); }
+      70% { box-shadow: 0 0 0 15px rgba(138, 109, 59, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(138, 109, 59, 0); }
+    }
+    
+    .admin-access-indicator {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(26, 37, 47, 0.95);
+      color: var(--admin-accent);
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+      z-index: 4000;
+      display: none;
+      animation: pulse 2s infinite;
+      border: 2px solid var(--admin-accent);
+    }
+    
+    /* Animação de carregamento (pré-hub) - ATUALIZADA */
+    #preloader-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0a1f33 0%, #11284b 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 9999;
+      display: none;
+    }
+
+    /* wrapper geral */
+    #loader-wrapper {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(10,31,51,0.8);
+      backdrop-filter: blur(4px);
+    }
+
+    /* card central - aumentado */
+    .loader-card {
+      background: #1e3250;
+      padding: 50px 40px;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+      transform: scale(1.1);
+    }
+
+    /* ícone grande com animação - maior e proporcional */
+    .loader-icon {
+      width: 280px;
+      height: 280px;
+      margin-bottom: 40px;
+      animation: float 3s ease-in-out infinite, pulse 2s ease-in-out infinite;
+      object-fit: contain;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%     { transform: translateY(-15px); }
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50%     { transform: scale(1.08); }
+    }
+
+    /* barra de progresso com efeito shine - maior */
+    .loader-bar {
+      position: relative;
+      width: 100%;
+      height: 45px;
+      background: #e4e6f0;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: inset 0 6px 12px rgba(0,0,0,0.25);
+    }
+
+    .loader-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #0040ff, #88aaff);
+      border-radius: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+    .loader-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -50%;
+      width: 50%;
+      height: 100%;
+      background: rgba(255,255,255,0.4);
+      transform: skewX(-20deg);
+      animation: shine 1.2s ease-in-out infinite;
+    }
+    @keyframes shine {
+      0%   { left: -50%; }
+      100% { left: 150%; }
+    }
+    
+    /* Efeito de brilho adicional */
+    .loader-icon::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.4) 0%, transparent 70%);
+      animation: glow 2s ease-in-out infinite alternate;
+      border-radius: 20px;
+      z-index: -1;
+    }
+    
+    @keyframes glow {
+      0% { opacity: 0.3; }
+      100% { opacity: 0.7; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animação de entrada -->
+  <div id="entryAnimation">
+    <div class="entry-logo">
+      <i class="fas fa-book-open"></i>
+    </div>
+    <h1 class="entry-title">Hub Educacional</h1>
+    <p class="entry-subtitle">Conhecimento organizado, aprendizado acelerado</p>
+  </div>
+  
+  <!-- Tela de ativação -->
+  <div id="activationScreen">
+    <div class="activation-card">
+      <h1><i class="fas fa-key"></i> Ativação Necessária</h1>
+      <p>Insira sua chave de licença para acessar o conteúdo premium</p>
+      
+      <div class="activation-form">
+        <input type="text" id="activationKey" class="key-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" autocomplete="off">
+        <button id="activateButton" class="activate-btn">
+          <i class="fas fa-lock-open"></i> Validar Licença
+        </button>
+      </div>
+      
+      <div id="activationMessage" class="activation-message">
+        <i class="fas fa-info-circle"></i> <span id="messageText"></span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Painel de Administração Secreto -->
+  <div id="adminPanel">
+    <div class="back-to-hub" onclick="closeAdminPanel()">
+      <i class="fas fa-arrow-left"></i>
+    </div>
+    
+    <div class="admin-container">
+      <div class="admin-header">
+        <h2><i class="fas fa-user-shield"></i> Painel do Desenvolvedor</h2>
+        <p>Gerenciamento de chaves de ativação</p>
+      </div>
+      
+      <div class="admin-section">
+        <h3><i class="fas fa-key"></i> Chaves Ativas</h3>
+        <div class="keys-list" id="activeKeysList">
+          <!-- As chaves serão carregadas dinamicamente aqui -->
+        </div>
+      </div>
+      
+      <div class="admin-section">
+        <h3><i class="fas fa-file-upload"></i> Atualizar Chaves</h3>
+        <p>Faça upload de um arquivo JSON com novas chaves:</p>
+        
+        <div class="json-upload">
+          <input type="file" id="jsonFileInput" accept=".json">
+          <label for="jsonFileInput" class="upload-btn">
+            <i class="fas fa-cloud-upload-alt"></i> Selecione o arquivo JSON
+          </label>
+          <span id="fileName">Nenhum arquivo selecionado</span>
+          
+          <div class="admin-actions">
+            <button class="admin-btn primary" onclick="updateKeys()">
+              <i class="fas fa-sync-alt"></i> Atualizar Chaves
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="admin-section">
+        <h3><i class="fas fa-info-circle"></i> Formato do Arquivo</h3>
+        <p>O arquivo JSON deve conter um array de strings com as chaves:</p>
+        <pre style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-top: 15px; overflow: auto; color: var(--text-color);">
+[
+  "A3B9C8D2E1F7G6H4",
+  "K5L2M9N8P3Q7R1S4",
+  "T9U1V4W7X2Y5Z3J8"
+]</pre>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Indicador de acesso ao painel admin -->
+  <div class="admin-access-indicator" id="adminAccessIndicator">
+    <i class="fas fa-user-shield fa-3x" style="margin-bottom: 15px;"></i>
+    <h2>Acesso ao Painel Admin Concedido!</h2>
+    <p>Carregando configurações...</p>
+  </div>
+  
+  <!-- Animação de carregamento (pré-hub) - ATUALIZADA -->
+  <div id="preloader-animation">
+    <div id="loader-wrapper">
+      <div class="loader-card">
+        <!-- Ícone personalizado na pasta img -->
+        <img src="img/icone.png" class="loader-icon" alt="Ícone do Estudante" />
+        <div class="loader-bar">
+          <div class="loader-fill" id="loader-fill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conteúdo principal (visível apenas após ativação) -->
+  <nav class="modal" id="modalMenu" aria-label="Menu principal">
+    <div class="modal-content">
+      <div class="header">
+        <button class="toggle-btn" aria-label="Alternar menu" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <span class="panel-title">Painel</span>
+      </div>
+      <ul class="menu">
+        <li><a href="#home" data-title="Home" onclick="loadContent('home')" class="active">
+          <i class="fas fa-home"></i><span>Home</span>
+        </a></li>
+        <li><a href="#chatboot" data-title="Chatboot" onclick="loadContent('chatboot')">
+          <i class="fas fa-robot"></i><span>Chatboot</span>
+        </a></li>
+        <li><a href="#planos" data-title="Planos" onclick="loadContent('planos')">
+          <i class="fas fa-th-large"></i><span>Planos</span>
+        </a></li>
+        <li><a href="#revisoes" data-title="Revisões" onclick="loadContent('revisoes')">
+          <i class="fas fa-sync-alt"></i><span>Revisões</span>
+        </a></li>
+        <li><a href="#flashcards" data-title="Flashcards" onclick="loadContent('flashcards')">
+          <i class="fas fa-layer-group"></i><span>Flashcards</span>
+        </a></li>
+        <!-- Botão Anki adicionado aqui -->
+        <li><a href="#anki" data-title="Anki" onclick="loadContent('anki')">
+          <i class="fas fa-clone"></i><span>Anki</span>
+        </a></li>
+        <li><a href="#simulados" data-title="Simulados" onclick="loadContent('simulados')">
+          <i class="fas fa-clipboard-check"></i><span>Simulados</span>
+        </a></li>
+        <li><a href="#edital" data-title="Edital Verticalizado" onclick="loadContent('edital')">
+          <i class="fas fa-file-alt"></i><span>Edital Verticalizado</span>
+        </a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content" id="contentArea">
+    <div class="loader" id="loader"><div class="spinner"></div></div>
+    <!-- Permissões liberadas removendo o atributo sandbox -->
+    <iframe id="iframeContent" src="home.html" onload="hideLoader()"></iframe>
+  </main>
+
+  <div id="notification" class="notification">
+    <i class="fas fa-check-circle"></i>
+    <span></span>
+  </div>
+
+  <script>
+    // Sistema de ativação offline com painel de administração secreto
+    document.addEventListener('DOMContentLoaded', () => {
+      // Verifica se o sistema já está ativado
+      if (isSystemActivated()) {
+        // Se já estiver ativado, esconde a animação de entrada imediatamente
+        document.getElementById('entryAnimation').style.display = 'none';
+        
+        // Verifica se deve mostrar a animação de carregamento
+        if (sessionStorage.getItem("hubLoaded")) {
+          activateSystem();
+        } else {
+          // Mostra a animação antes do hub
+          document.getElementById('preloader-animation').style.display = 'flex';
+          startLoaderAnimation();
+        }
+      } else {
+        // Mostra a tela de ativação se não estiver ativado
+        document.getElementById('activationScreen').style.display = 'flex';
+        setupActivationListeners();
+      }
+      
+      // Configura o listener para upload de arquivo
+      document.getElementById('jsonFileInput').addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+          document.getElementById('fileName').textContent = this.files[0].name;
+        }
+      });
+    });
+
+    // Função para iniciar a animação de carregamento
+    function startLoaderAnimation() {
+      const fill = document.getElementById("loader-fill");
+      const preloader = document.getElementById("preloader-animation");
+
+      let start = null;
+      const duration = 2500; // 2.5s
+
+      function animate(time) {
+        if (!start) start = time;
+        const progress = Math.min((time - start) / duration, 1);
+        fill.style.width = `${progress * 100}%`;
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          sessionStorage.setItem("hubLoaded", true);
+          // Esconder a animação
+          preloader.style.display = "none";
+          // Mostrar o hub principal
+          activateSystem();
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
+    // Função para verificar se o sistema está ativado
+    function isSystemActivated() {
+      return localStorage.getItem('system_activated') === 'true';
+    }
+
+    // Configura os listeners para a tela de ativação
+    function setupActivationListeners() {
+      const activationKeyInput = document.getElementById('activationKey');
+      const activateButton = document.getElementById('activateButton');
+      
+      // Formatação automática da chave (XXXX-XXXX-XXXX-XXXX)
+      activationKeyInput.addEventListener('input', function(e) {
+        // Verifica primeiro se é o código especial de admin
+        if (this.value.toUpperCase().includes('ADMIN-ACCESS-DEV')) {
+          return;
+        }
+        
+        let value = e.target.value.replace(/-/g, '');
+        if (value.length > 0) {
+          value = value.match(new RegExp('.{1,4}', 'g')).join('-');
+        }
+        e.target.value = value;
+      });
+      
+      // Ativação ao clicar no botão
+      activateButton.addEventListener('click', validateActivationKey);
+      
+      // Ativação ao pressionar Enter
+      activationKeyInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          validateActivationKey();
+        }
+      });
+    }
+
+    // Função para validar a chave de ativação
+    function validateActivationKey() {
+      const activationKey = document.getElementById('activationKey').value;
+      const messageElement = document.getElementById('activationMessage');
+      const messageText = document.getElementById('messageText');
+      
+      // Verifica se a chave foi inserida
+      if (!activationKey) {
+        showMessage('Por favor, insira uma chave de licença', 'error');
+        return;
+      }
+      
+      // Verifica se é o código secreto para o painel admin
+      if (activationKey.toUpperCase() === 'ADMIN-ACCESS-DEV') {
+        showAdminAccessIndicator();
+        return;
+      }
+      
+      // Remove hífens para validação
+      const cleanKey = activationKey.replace(/-/g, '');
+      
+      // Verifica o formato da chave
+      if (cleanKey.length !== 16 || !/^[A-Z0-9]{16}$/.test(cleanKey)) {
+        showMessage('Formato de chave inválido', 'error');
+        return;
+      }
+      
+      // Simula uma pequena espera para o processo de verificação
+      showMessage('Verificando licença...', 'info');
+      
+      setTimeout(() => {
+        // Verifica se a chave é válida
+        if (isValidKey(cleanKey)) {
+          // Armazena o estado de ativação
+          localStorage.setItem('system_activated', 'true');
+          // Armazena a chave de forma segura
+          storeActivationKey(cleanKey);
+          showMessage('Licença validada com sucesso!', 'success');
+          showNotification('Sistema ativado com sucesso!', 'success');
+          
+          // Esconde a tela de ativação
+          document.getElementById('activationScreen').style.display = 'none';
+          
+          // Verifica se deve mostrar a animação
+          if (sessionStorage.getItem("hubLoaded")) {
+            activateSystem();
+          } else {
+            // Mostra a animação antes do hub
+            document.getElementById('preloader-animation').style.display = 'flex';
+            startLoaderAnimation();
+          }
+        } else {
+          showMessage('Chave de licença inválida', 'error');
+        }
+      }, 800);
+    }
+
+    // Função para mostrar mensagens na tela de ativação
+    function showMessage(text, type) {
+      const messageElement = document.getElementById('activationMessage');
+      const messageText = document.getElementById('messageText');
+      
+      messageText.textContent = text;
+      messageElement.className = 'activation-message';
+      messageElement.style.display = 'flex';
+      
+      if (type === 'error') {
+        messageElement.classList.add('activation-error');
+      } else if (type === 'success') {
+        messageElement.classList.add('activation-success');
+      }
+    }
+
+    // Função para ativar o sistema (mostrar o hub)
+    function activateSystem() {
+      const modalMenu = document.getElementById("modalMenu");
+      const contentArea = document.getElementById("contentArea");
+      
+      // Garantir que a tela de ativação esteja oculta
+      document.getElementById('activationScreen').style.display = 'none';
+      
+      // Mostra o sistema principal
+      modalMenu.style.display = 'block';
+      contentArea.style.display = 'block';
+      
+      // Configura o sistema principal
+      setupMainSystem();
+    }
+
+    // Função para verificar se uma chave é válida
+    function isValidKey(key) {
+      // Carrega as chaves válidas do localStorage ou usa as padrão
+      let validKeys = [];
+      
+      try {
+        const storedKeys = localStorage.getItem('valid_keys');
+        if (storedKeys) {
+          validKeys = JSON.parse(storedKeys);
+        } else {
+          // Chaves padrão
+          validKeys = [
+            'A3B9C8D2E1F7G6H4', 
+            'K5L2M9N8P3Q7R1S4', 
+            'T9U1V4W7X2Y5Z3J8',
+            'B2C8D4E6F1G9H3J7',
+            'M5N9P2Q8R3S7T1U4'
+          ];
+          localStorage.setItem('valid_keys', JSON.stringify(validKeys));
+        }
+      } catch (e) {
+        console.error('Erro ao carregar chaves válidas', e);
+      }
+      
+      return validKeys.includes(key);
+    }
+
+    // Função para armazenar a chave de forma segura
+    function storeActivationKey(key) {
+      localStorage.setItem('activation_key', btoa(key));
+    }
+
+    // Configura o sistema principal após ativação
+    function setupMainSystem() {
+      const savedState = localStorage.getItem('menuState');
+      const modal = document.getElementById('modalMenu');
+
+      if (savedState === 'minimized') {
+        modal.classList.add('minimized');
+        document.getElementById('contentArea').classList.add('minimized');
+      }
+    }
+
+    // Funções do sistema principal
+    function toggleSidebar() {
+      const modal = document.getElementById('modalMenu');
+      const content = document.getElementById('contentArea');
+
+      modal.classList.toggle('minimized');
+      content.classList.toggle('minimized');
+
+      const newState = modal.classList.contains('minimized') ? 'minimized' : 'expanded';
+      localStorage.setItem('menuState', newState);
+    }
+
+    function loadContent(page) {
+      const iframe = document.getElementById('iframeContent');
+      const loader = document.getElementById('loader');
+      const links = document.querySelectorAll('.menu li a');
+
+      loader.classList.add('active');
+
+      links.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${page}`) {
+          link.classList.add('active');
+        }
+      });
+
+      iframe.src = `${page}.html`;
+    }
+
+    function hideLoader() {
+      document.getElementById('loader').classList.remove('active');
+    }
+    
+    // Função para mostrar notificação
+    function showNotification(message, type) {
+      const notification = document.getElementById('notification');
+      const icon = notification.querySelector('i');
+      const text = notification.querySelector('span');
+      
+      text.textContent = message;
+      notification.className = `notification ${type}`;
+      
+      // Configurar ícone correto
+      if (type === 'success') {
+        icon.className = 'fas fa-check-circle';
+      } else {
+        icon.className = 'fas fa-exclamation-circle';
+      }
+      
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Mostrar indicador de acesso ao admin
+    function showAdminAccessIndicator() {
+      const indicator = document.getElementById('adminAccessIndicator');
+      indicator.style.display = 'block';
+      
+      setTimeout(() => {
+        indicator.style.opacity = '0';
+        indicator.style.transform = 'scale(0.9)';
+        
+        setTimeout(() => {
+          indicator.style.display = 'none';
+          openAdminPanel();
+        }, 500);
+      }, 1500);
+    }
+    
+    // Abrir painel de administração
+    function openAdminPanel() {
+      document.getElementById('activationScreen').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      loadActiveKeys();
+    }
+    
+    // Fechar painel de administração
+    function closeAdminPanel() {
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('activationScreen').style.display = 'flex';
+      document.getElementById('activationKey').value = '';
+      document.getElementById('activationMessage').style.display = 'none';
+    }
+    
+    // Carregar chaves ativas no painel admin
+    function loadActiveKeys() {
+      const keysList = document.getElementById('activeKeysList');
+      keysList.innerHTML = '';
+      
+      try {
+        const storedKeys = localStorage.getItem('valid_keys');
+        let validKeys = [];
+        
+        if (storedKeys) {
+          validKeys = JSON.parse(storedKeys);
+        }
+        
+        if (validKeys.length === 0) {
+          keysList.innerHTML = '<div class="key-item">Nenhuma chave cadastrada</div>';
+          return;
+        }
+        
+        validKeys.forEach(key => {
+          const keyElement = document.createElement('div');
+          keyElement.className = 'key-item';
+          keyElement.innerHTML = `
+            <div class="key-value">${formatKey(key)}</div>
+            <div class="key-actions">
+              <button onclick="removeKey('${key}')"><i class="fas fa-trash-alt"></i></button>
+            </div>
+          `;
+          keysList.appendChild(keyElement);
+        });
+      } catch (e) {
+        keysList.innerHTML = '<div class="key-item">Erro ao carregar chaves</div>';
+        console.error('Erro ao carregar chaves', e);
+      }
+    }
+    
+    // Formatar chave para exibição
+    function formatKey(key) {
+      return key.match(/.{1,4}/g).join('-');
+    }
+    
+    // Remover uma chave
+    function removeKey(key) {
+      try {
+        const storedKeys = localStorage.getItem('valid_keys');
+        let validKeys = [];
+        
+        if (storedKeys) {
+          validKeys = JSON.parse(storedKeys);
+        }
+        
+        // Remove a chave
+        validKeys = validKeys.filter(k => k !== key);
+        localStorage.setItem('valid_keys', JSON.stringify(validKeys));
+        
+        // Recarrega a lista
+        loadActiveKeys();
+        showNotification('Chave removida com sucesso', 'success');
+      } catch (e) {
+        console.error('Erro ao remover chave', e);
+        showNotification('Erro ao remover chave', 'error');
+      }
+    }
+    
+    // Atualizar chaves a partir de arquivo JSON
+    function updateKeys() {
+      const fileInput = document.getElementById('jsonFileInput');
+      
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showNotification('Selecione um arquivo JSON', 'error');
+        return;
+      }
+      
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          const newKeys = JSON.parse(e.target.result);
+          
+          // Valida se é um array de strings
+          if (!Array.isArray(newKeys)) {
+            throw new Error('O arquivo deve conter um array de chaves');
+          }
+          
+          for (const key of newKeys) {
+            if (typeof key !== 'string' || key.length !== 16) {
+              throw new Error(`Chave inválida: ${key}`);
+            }
+          }
+          
+          // Salva as novas chaves
+          localStorage.setItem('valid_keys', JSON.stringify(newKeys));
+          loadActiveKeys();
+          showNotification('Chaves atualizadas com sucesso!', 'success');
+          document.getElementById('fileName').textContent = 'Nenhum arquivo selecionado';
+          fileInput.value = '';
+        } catch (e) {
+          console.error('Erro ao processar arquivo JSON', e);
+          showNotification(`Erro: ${e.message}`, 'error');
+        }
+      };
+      
+      reader.onerror = function() {
+        showNotification('Erro ao ler o arquivo', 'error');
+      };
+      
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edital Verticalizado | Acompanhamento Inteligente</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Tema Claro */
+            --primary: #8CBF92;
+            --primary-light: #c5e0c9;
+            --secondary: #3A90E8;
+            --secondary-light: #a9d7f4;
+            --background: #F7F9FA;
+            --card: #FFFFFF;
+            --border: #E8EBED;
+            --text: #2C2C2C;
+            --text-secondary: #4C4C4C;
+            --accent: #74C37F;
+            --accent-light: #e1f4e3;
+            --success: #74C37F;
+            
+        /* Tema Escuro */
+        --dark-primary: #5a8d60;
+        --dark-primary-light: #3c5d40;
+        --dark-secondary: #2a6fc2;
+        --dark-secondary-light: #1a3c6b;
+        --dark-background: #121212;
+        --dark-card: #1E1E1E;
+        --dark-border: #2d2d2d;
+        --dark-text: #E0E0E0;
+        --dark-text-secondary: #B0B0B0;
+        --dark-accent: #5a9a63;
+        --dark-accent-light: #2c4a30;
+        --dark-success: #5a9a63;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--background);
+        color: var(--text);
+        transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    
+    body.dark {
+        --primary: var(--dark-primary);
+        --primary-light: var(--dark-primary-light);
+        --secondary: var(--dark-secondary);
+        --secondary-light: var(--dark-secondary-light);
+        --background: var(--dark-background);
+        --card: var(--dark-card);
+        --border: var(--dark-border);
+        --text: var(--dark-text);
+        --text-secondary: var(--dark-text-secondary);
+        --accent: var(--dark-accent);
+        --accent-light: var(--dark-accent-light);
+        --success: var(--dark-success);
+    }
+    
+    .header-gradient {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    }
+    
+    .card {
+        background: var(--card);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    
+    .topic-item {
+        position: relative;
+        padding-left: 36px;
+        transition: all 0.3s ease;
+    }
+    
+    .topic-item::before {
+        content: '';
+        position: absolute;
+        left: 16px;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background-color: var(--border);
+    }
+    
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+    
+    .progress-ring-circle {
+        stroke-dasharray: 283;
+        stroke-dashoffset: 283;
+        transition: stroke-dashoffset 0.7s ease;
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease forwards;
+    }
+    
+    .slide-up {
+        animation: slideUp 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    /* CORREÇÃO DOS CHECKMARKS - ESTILOS REVISTOS */
+    .checkbox-container {
+        display: block;
+        position: relative;
+        padding-left: 32px;
+        margin-bottom: 0;
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        line-height: 22px;
+    }
+    
+    .checkbox-container input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+    
+    /* Checkbox não marcado - Tema Claro */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 22px;
+        width: 22px;
+        background-color: var(--card);
+        border: 2px solid var(--text-secondary);
+        border-radius: 5px;
+        transition: all 0.2s ease;
+    }
+    
+    /* Checkbox marcado - Tema Claro */
+    .checkbox-container input:checked ~ .checkmark {
+        background-color: var(--success);
+        border-color: var(--success);
+    }
+    
+    /* Checkmark (ícone de check) - Tema Claro */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+        left: 7px;
+        top: 3px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+    
+    .checkbox-container input:checked ~ .checkmark:after {
+        display: block;
+    }
+    
+    /* ESTILOS PARA TEMA ESCURO */
+    body.dark .checkmark {
+        background-color: var(--dark-card);
+        border-color: var(--dark-text-secondary);
+    }
+    
+    body.dark .checkbox-container input:checked ~ .checkmark {
+        background-color: var(--dark-success);
+        border-color: var(--dark-success);
+    }
+    
+    body.dark .checkbox-container:hover input ~ .checkmark {
+        border-color: var(--dark-text);
+    }
+    
+    /* Hover state */
+    .checkbox-container:hover input ~ .checkmark {
+        border-color: var(--text);
+    }
+    
+    .topic-label {
+        vertical-align: middle;
+        display: inline-block;
+        margin-left: 8px;
+    }
+    
+    .topic-completed {
+        text-decoration: line-through;
+        color: var(--text-secondary);
+    }
+    
+    .modal-overlay {
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(6px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+        background: var(--card);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        width: 90%;
+        max-width: 700px;
+    }
+    
+    /* Estilos aprimorados para o modal */
+    .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--accent-light);
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .step-container {
+        display: flex;
+        margin-bottom: 1.25rem;
+    }
+    
+    .step-number {
+        min-width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--secondary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    
+    .step-text {
+        flex: 1;
+        color: var(--text);
+    }
+    
+    body.dark .step-text {
+        color: var(--dark-text);
+    }
+    
+    .code-block {
+        background: var(--accent-light);
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+        border: 1px solid var(--border);
+    }
+    
+    .code-block pre {
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        margin: 0;
+        white-space: pre-wrap;
+        color: var(--text);
+    }
+    
+    body.dark .code-block pre {
+        color: var(--dark-text);
+    }
+    
+    .command-block {
+        background: var(--secondary-light);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        border: 1px solid var(--border);
+        position: relative;
+    }
+    
+    .command-text {
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        color: var(--text);
+    }
+    
+    body.dark .command-text {
+        color: var(--dark-text);
+    }
+    
+    .section-title {
+        font-weight: 700;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        color: var(--text);
+        font-size: 1.1rem;
+    }
+    
+    body.dark .section-title {
+        color: var(--dark-text);
+    }
+    
+    .copy-btn {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.4rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .copy-btn:hover {
+        background: var(--accent-light);
+    }
+    
+    .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--border);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--secondary);
+    }
+    
+    .btn-primary {
+        background: var(--secondary);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .btn-secondary {
+        background: var(--primary-light);
+        color: var(--text);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .smooth-transition {
+        transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+    
+    /* Estilo para o gerenciador de editais */
+    .edital-selector {
+        position: relative;
+        display: inline-block;
+        min-width: 200px;
+        margin-left: 20px;
+    }
+    
+    .edital-selector-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        transition: all 0.3s;
+    }
+    
+    .edital-selector-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .edital-selector-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--card);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin-top: 8px;
+        overflow: hidden;
+        z-index: 100;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+    }
+    
+    .edital-selector-dropdown.show {
+        display: block;
+    }
+    
+    .edital-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.2s;
+    }
+    
+    .edital-item:hover {
+        background: var(--accent-light);
+    }
+    
+    .edital-item.active {
+        background: var(--accent-light);
+        font-weight: 600;
+    }
+    
+    .delete-edital {
+        color: #e74c3c;
+        background: none;
+        border: none;
+        padding: 4px;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+    
+    .delete-edital:hover {
+        opacity: 1;
+    }
+    
+    .add-edital-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        width: 100%;
+        background: var(--accent-light);
+        border: none;
+        color: var(--text);
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+    
+    .add-edital-btn:hover {
+        background: var(--accent);
+        color: white;
+    }
+</style></head>
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="sticky top-0 z-50">
+        <div class="header-gradient py-4 px-6 shadow-lg">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-white bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-file-alt text-white text-xl"></i>
+                    </div>
+                    <h1 class="text-white text-xl font-bold font-['Plus_Jakarta_Sans']">Edital Verticalizado</h1>
+                    
+                <!-- Gerenciador de Editais -->
+                <div class="edital-selector">
+                    <button class="edital-selector-btn">
+                        <span id="current-edital">Selecione um edital</span>
+                        <i class="fas fa-chevron-down ml-2"></i>
+                    </button>
+                    <div class="edital-selector-dropdown" id="edital-dropdown">
+                        <!-- Os editais serão carregados aqui dinamicamente -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button id="themeToggle" class="relative w-14 h-6 rounded-full bg-white bg-opacity-20 flex items-center p-1">
+                    <div id="themeThumb" class="absolute w-4 h-4 rounded-full bg-white transition-all duration-300 left-1 dark:left-9"></div>
+                    <i class="fas fa-sun text-white text-xs ml-auto mr-1"></i>
+                    <i class="fas fa-moon text-white text-xs ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-grow py-8 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Painel Principal -->
+            <div class="lg:col-span-2">
+                <div class="card p-6 card-hover">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-2xl font-bold">Visualizador de Edital</h2>
+                        <div>
+                            <label for="jsonUpload" class="btn-primary px-5 py-2.5 rounded-xl text-white font-medium cursor-pointer flex items-center space-x-2">
+                                <i class="fas fa-file-import"></i>
+                                <span>Importar JSON</span>
+                            </label>
+                            <input type="file" id="jsonUpload" accept=".json" class="hidden">
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Section -->
+                    <div id="progressSection" class="hidden mb-8">
+                        <div class="flex justify-between items-center mb-3">
+                            <div>
+                                <h3 id="editalTitle" class="text-xl font-semibold">Concurso Banco do Brasil 2024</h3>
+                                <p class="text-sm text-text-secondary">Acompanhe seu progresso em cada disciplina</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span id="progressPercent" class="text-2xl font-bold">0%</span>
+                                <span>Completo</span>
+                            </div>
+                        </div>
+                        
+                        <div class="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div id="progressFill" class="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-700" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Edital Content -->
+                    <div id="editalContent" class="min-h-[500px] flex items-center justify-center">
+                        <div class="text-center max-w-md py-12">
+                            <div class="mx-auto mb-6 w-20 h-20 rounded-full bg-accent-light flex items-center justify-center">
+                                <i class="fas fa-file-import text-3xl text-accent"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3">Importe seu edital verticalizado</h3>
+                            <p class="text-text-secondary mb-6">Faça upload de um arquivo JSON no formato especificado para começar a acompanhar seu progresso.</p>
+                            <label for="jsonUpload" class="btn-primary px-8 py-3 rounded-xl text-white font-medium cursor-pointer inline-flex items-center space-x-2">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Selecionar Arquivo</span>
+                            </label>
+                            <button id="loadSample" class="mt-4 text-text-secondary hover:text-primary underline text-sm">
+                                Ou carregar dados de exemplo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="space-y-8">
+                <!-- Stats Card -->
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-6">Progresso Geral</h3>
+                    
+                    <div class="space-y-6">
+                        <!-- Progress Ring -->
+                        <div class="relative w-40 h-40 mx-auto">
+                            <svg class="progress-ring w-40 h-40" viewBox="0 0 100 100">
+                                <circle class="progress-ring-circle" stroke="var(--border)" stroke-width="8" fill="transparent" r="45" cx="50" cy="50"/>
+                                <circle id="mainProgressCircle" class="progress-ring-circle" stroke="var(--success)" stroke-width="8" stroke-linecap="round" fill="transparent" r="45" cx="50" cy="50"/>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span id="ringProgressPercent" class="text-3xl font-bold">0%</span>
+                                <span class="text-sm text-text-secondary">Completo</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Stats -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-accent-light rounded-xl p-4 text-center">
+                                <div class="text-2xl font-bold" id="completedTopics">0</div>
+                                <div class="text-sm text-text-secondary">Concluídos</div>
+                            </div>
+                            <div class="bg-secondary-light rounded-xl p-4 text-center">
+                                <div class="text-2xl font-bold" id="totalTopics">0</div>
+                                <div class="text-sm text-text-secondary">Total</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions Card -->
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-6">Ações</h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Botão Gerar JSON movido para cá -->
+                        <button id="helpBtn" class="w-full flex items-center justify-between p-4 rounded-xl border border-border hover:bg-accent-light transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                                    <i class="fas fa-robot text-purple-500"></i>
+                                </div>
+                                <span>Como gerar arquivo JSON?</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-text-secondary"></i>
+                        </button>
+                        
+                        <button id="resetBtn" class="w-full flex items-center justify-between p-4 rounded-xl border border-border hover:bg-accent-light transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                                    <i class="fas fa-redo text-red-500"></i>
+                                </div>
+                                <span>Reiniciar Progresso</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-text-secondary"></i>
+                        </button>
+                        
+                        <button id="exportBtn" class="w-full flex items-center justify-between p-4 rounded-xl border border-border hover:bg-accent-light transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-file-export text-blue-500"></i>
+                                </div>
+                                <span>Exportar Progresso</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-text-secondary"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="py-6 px-4 border-t border-border">
+    <div class="max-w-7xl mx-auto text-center text-text-secondary text-sm">
+        © 2024 Edital Verticalizado | Desenvolvido para otimizar sua preparação
+    </div>
+</footer>
+
+<!-- Modal de Ajuda Corrigido -->
+<div id="helpModal" class="fixed inset-0 z-50 p-4 hidden modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold">Como gerar seu JSON via IA</h3>
+                <button id="closeModal" class="text-text-secondary hover:text-text">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="modal-body">
+            <h4 class="section-title">Passo a Passo</h4>
+            
+            <div class="step-container">
+                <div class="step-number">1</div>
+                <div class="step-text">
+                    Copie todo o texto do edital que fala sobre os conhecimentos específicos e gerais
+                </div>
+            </div>
+            
+            <div class="step-container">
+                <div class="step-number">2</div>
+                <div class="step-text">
+                    Cole o texto no prompt abaixo
+                </div>
+            </div>
+            
+            <div class="step-container">
+                <div class="step-number">3</div>
+                <div class="step-text">
+                   Execute o comando na IA de sua preferência. Recomendamos fortemente o uso do DeepSeek.
+                </div>
+            </div>
+            
+            <div class="step-container">
+                <div class="step-number">4</div>
+                <div class="step-text">
+                    Salve o resultado em um arquivo com extensão .json ou baixe diretamente o arquivo do chat da IA no botão de download.
+                </div>
+            </div>
+            
+            <h4 class="section-title">Exemplo de Estrutura JSON</h4>
+            <div class="code-block">
+                <pre>{
+  "titulo": "Concurso Banco do Brasil 2024",
+  "disciplinas": [
+    {
+      "nome": "Língua Portuguesa",
+      "topicos": [
+        "Ortografia",
+        "Acentuação",
+        "Pontuação"
+      ]
+    },
+    {
+      "nome": "Matemática",
+      "topicos": [
+        "Porcentagem",
+        "Razão e Proporção"
+      ]
+    }
+  ]
+}</pre>
+            </div>
+            
+            <h4 class="section-title">Comando para IA</h4>
+            <div class="command-block">
+                <div class="command-text">Você é um especialista em concursos públicos. Transforme o edital a seguir em um JSON com a estrutura:
+
+{
+  "titulo": "Título do Concurso e Ano",
+  "disciplinas": [
+    {
+      "nome": "Nome da Disciplina",
+      "topicos": [
+        "Tópico 1",
+        "Tópico 2",
+        ...
+      ]
+    },
+    ...
+  ]
+}
+
+Regras:
+- "titulo" deve conter nome do concurso e ano
+- Cada disciplina é um objeto no array "disciplinas"
+- Cada disciplina tem "nome" e array "topicos"
+- Cada tópico é uma string
+- Não inclua subtópicos; aplaine o máximo possível
+
+Edital:
+[INSIRA O TEXTO DO EDITAL AQUI]</div>
+                <button id="copyBtn" class="copy-btn">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button id="closeModalBtn" class="btn-primary px-6 py-3 rounded-xl text-white font-medium">
+                Entendi, obrigado!
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dados de exemplo para demonstração
+    const sampleEdital = {
+        "titulo": "Concurso Banco do Brasil 2024",
+        "disciplinas": [
+            {
+                "nome": "Língua Portuguesa",
+                "topicos": [
+                    "Ortografia",
+                    "Acentuação",
+                    "Pontuação",
+                    "Concordância Nominal e Verbal",
+                    "Regência Nominal e Verbal",
+                    "Crase",
+                    "Interpretação de Textos"
+                ]
+            },
+            {
+                "nome": "Matemática",
+                "topicos": [
+                    "Porcentagem",
+                    "Razão e Proporção",
+                    "Regra de Três",
+                    "Juros Simples e Compostos",
+                    "Equações de 1º e 2º grau",
+                    "Sistemas Lineares",
+                    "Progressões Aritméticas e Geométricas"
+                ]
+            },
+            {
+                "nome": "Informática",
+                "topicos": [
+                    "Sistema Operacional Windows",
+                    "Pacote Office (Word, Excel, PowerPoint)",
+                    "Internet e Navegadores",
+                    "Segurança da Informação",
+                    "Redes de Computadores",
+                    "Conceitos de Hardware e Software"
+                ]
+            },
+            {
+                "nome": "Atualidades",
+                "topicos": [
+                    "Economia Brasileira e Mundial",
+                    "Política Nacional e Internacional",
+                    "Meio Ambiente e Sustentabilidade",
+                    "Tecnologia e Inovação",
+                    "Saúde Pública",
+                    "Educação e Sociedade"
+                ]
+            }
+        ]
+    };
+    
+    // Elementos DOM
+    const themeToggle = document.getElementById('themeToggle');
+    const themeThumb = document.getElementById('themeThumb');
+    const body = document.body;
+    const helpBtn = document.getElementById('helpBtn');
+    const helpModal = document.getElementById('helpModal');
+    const closeModal = document.getElementById('closeModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const jsonUpload = document.getElementById('jsonUpload');
+    const editalContent = document.getElementById('editalContent');
+    const progressSection = document.getElementById('progressSection');
+    const progressFill = document.getElementById('progressFill');
+    const progressPercent = document.getElementById('progressPercent');
+    const ringProgressPercent = document.getElementById('ringProgressPercent');
+    const editalTitle = document.getElementById('editalTitle');
+    const completedTopicsEl = document.getElementById('completedTopics');
+    const totalTopicsEl = document.getElementById('totalTopics');
+    const mainProgressCircle = document.getElementById('mainProgressCircle');
+    const loadSample = document.getElementById('loadSample');
+    const resetBtn = document.getElementById('resetBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    
+    // Elementos do gerenciador de editais
+    const editalSelectorBtn = document.querySelector('.edital-selector-btn');
+    const editalDropdown = document.getElementById('edital-dropdown');
+    const currentEditalEl = document.getElementById('current-edital');
+    
+    // Estado da aplicação
+    let editais = JSON.parse(localStorage.getItem('editais')) || [];
+    let editalAtivoId = localStorage.getItem('editalAtivoId') || null;
+    let completedTopics = {};
+    let totalTopicsCount = 0;
+    let completedTopicsCount = 0;
+    
+    // Inicialização
+    function init() {
+        // Verificar tema salvo
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark');
+            themeThumb.style.left = '2.25rem';
+        }
+        
+        // Carregar editais do localStorage
+        if (editais.length > 0) {
+            if (!editalAtivoId || !editais.find(e => e.id === editalAtivoId)) {
+                editalAtivoId = editais[0].id;
+            }
+            carregarEditalAtivo();
+            renderEditalSelector();
+        }
+        
+        // Inicializar eventos
+        initEvents();
+    }
+    
+    // Inicializar eventos
+    function initEvents() {
+        // Tema
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            const isDark = body.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeThumb.style.left = isDark ? '2.25rem' : '0.25rem';
+        });
+        
+        // Modal de ajuda
+        helpBtn.addEventListener('click', openHelpModal);
+        closeModal.addEventListener('click', closeHelpModal);
+        closeModalBtn.addEventListener('click', closeHelpModal);
+        
+        // Copiar comando
+        copyBtn.addEventListener('click', () => {
+            const commandText = document.querySelector('.command-text').textContent;
+            navigator.clipboard.writeText(commandText).then(() => {
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                }, 2000);
+            });
+        });
+        
+        // Upload de JSON
+        jsonUpload.addEventListener('change', handleJsonUpload);
+        
+        // Carregar dados de exemplo
+        loadSample.addEventListener('click', () => {
+            adicionarNovoEdital({...sampleEdital});
+        });
+        
+        // Reiniciar progresso
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja reiniciar todo o seu progresso?')) {
+                reiniciarProgresso();
+            }
+        });
+        
+        // Exportar progresso
+        exportBtn.addEventListener('click', exportarProgresso);
+        
+        // Gerenciador de editais
+        editalSelectorBtn.addEventListener('click', toggleEditalDropdown);
+        
+        // Fechar dropdown ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!editalSelectorBtn.contains(e.target) && !editalDropdown.contains(e.target)) {
+                editalDropdown.classList.remove('show');
+            }
+        });
+        
+        // Fechar modal ao clicar fora
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                closeHelpModal();
+            }
+        });
+    }
+    
+    // Adicionar novo edital
+    function adicionarNovoEdital(editalData) {
+        const novoEdital = {
+            id: 'edital_' + Date.now(),
+            titulo: editalData.titulo,
+            disciplinas: editalData.disciplinas,
+            dataCriacao: new Date().toISOString()
+        };
+        
+        editais.push(novoEdital);
+        localStorage.setItem('editais', JSON.stringify(editais));
+        
+        editalAtivoId = novoEdital.id;
+        localStorage.setItem('editalAtivoId', editalAtivoId);
+        
+        carregarEditalAtivo();
+        renderEditalSelector();
+        
+        // Mostrar mensagem de sucesso
+        alert(`Novo edital "${novoEdital.titulo}" adicionado com sucesso!`);
+    }
+    
+    // Carregar edital ativo
+    function carregarEditalAtivo() {
+        const editalAtivo = editais.find(e => e.id === editalAtivoId);
+        if (!editalAtivo) return;
+        
+        // Carregar tópicos concluídos para este edital
+        completedTopics = JSON.parse(localStorage.getItem(`completedTopics_${editalAtivoId}`)) || {};
+        
+        // Atualizar título
+        currentEditalEl.textContent = editalAtivo.titulo;
+        
+        // Renderizar edital
+        renderEdital(editalAtivo);
+        updateProgress(editalAtivo);
+    }
+    
+    // Renderizar o edital
+    function renderEdital(editalData) {
+        if (!editalData) return;
+        
+        progressSection.classList.remove('hidden');
+        editalTitle.textContent = editalData.titulo;
+        
+        let html = `
+            <div class="space-y-8">
+        `;
+        
+        editalData.disciplinas.forEach((disciplina, index) => {
+            const progress = getDisciplineProgress(disciplina);
+            
+            html += `
+                <div class="card p-5 card-hover">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-book mr-3 text-primary"></i>
+                            ${disciplina.nome}
+                        </h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-medium discipline-progress" data-discipline="${index}">${progress}%</span>
+                            <div class="w-8 h-8 relative">
+                                <svg class="w-8 h-8" viewBox="0 0 36 36">
+                                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--border)" stroke-width="3"/>
+                                    <circle id="progress-${index}" cx="18" cy="18" r="15.5" fill="none" stroke="var(--success)" stroke-width="3" stroke-dasharray="97" stroke-dashoffset="${97 - (progress * 0.97)}" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+            `;
+            
+            disciplina.topicos.forEach((topico, topicoIndex) => {
+                const topicKey = `${disciplina.nome}-${topico}`;
+                const isCompleted = completedTopics[topicKey] === true;
+                
+                html += `
+                    <div class="topic-item">
+                        <div class="flex items-start">
+                            <label class="checkbox-container">
+                                <input type="checkbox" 
+                                    data-topic="${topicKey}"
+                                    ${isCompleted ? 'checked' : ''}>
+                                <span class="checkmark"></span>
+                                <span class="topic-label ${isCompleted ? 'topic-completed' : ''}">${topico}</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+        
+        editalContent.innerHTML = html;
+        
+        // Adicionar event listeners aos checkboxes
+        document.querySelectorAll('.checkbox-container input').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const topicKey = e.target.dataset.topic;
+                completedTopics[topicKey] = e.target.checked;
+                localStorage.setItem(`completedTopics_${editalAtivoId}`, JSON.stringify(completedTopics));
+                
+                const editalAtivo = editais.find(e => e.id === editalAtivoId);
+                if (editalAtivo) {
+                    updateProgress(editalAtivo);
+                    updateDisciplineProgress(topicKey);
+                }
+            });
+        });
+    }
+    
+    // Atualizar progresso geral
+    function updateProgress(editalData) {
+        if (!editalData) return;
+        
+        totalTopicsCount = 0;
+        completedTopicsCount = 0;
+        
+        editalData.disciplinas.forEach(disciplina => {
+            disciplina.topicos.forEach(topico => {
+                totalTopicsCount++;
+                const topicKey = `${disciplina.nome}-${topico}`;
+                if (completedTopics[topicKey]) {
+                    completedTopicsCount++;
+                }
+            });
+        });
+        
+        const progress = totalTopicsCount > 0 ? Math.round((completedTopicsCount / totalTopicsCount) * 100) : 0;
+        
+        // Atualizar barra de progresso
+        progressFill.style.width = `${progress}%`;
+        progressPercent.textContent = `${progress}%`;
+        ringProgressPercent.textContent = `${progress}%`;
+        
+        // Atualizar círculo de progresso
+        const circumference = 283; // 2 * π * r (r = 45)
+        const offset = circumference - (progress / 100) * circumference;
+        mainProgressCircle.style.strokeDashoffset = offset;
+        
+        // Atualizar estatísticas
+        completedTopicsEl.textContent = completedTopicsCount;
+        totalTopicsEl.textContent = totalTopicsCount;
+    }
+    
+    // Atualizar progresso de disciplina específica
+    function updateDisciplineProgress(topicKey) {
+        if (!editalAtivoId) return;
+        
+        const editalAtivo = editais.find(e => e.id === editalAtivoId);
+        if (!editalAtivo) return;
+        
+        // Encontrar a disciplina a que pertence o tópico
+        let disciplineIndex = -1;
+        let disciplineName = "";
+        
+        for (let i = 0; i < editalAtivo.disciplinas.length; i++) {
+            const disciplina = editalAtivo.disciplinas[i];
+            for (let j = 0; j < disciplina.topicos.length; j++) {
+                if (`${disciplina.nome}-${disciplina.topicos[j]}` === topicKey) {
+                    disciplineIndex = i;
+                    disciplineName = disciplina.nome;
+                    break;
+                }
+            }
+            if (disciplineIndex !== -1) break;
+        }
+        
+        if (disciplineIndex === -1) return;
+        
+        // Calcular o novo progresso para a disciplina
+        const disciplina = editalAtivo.disciplinas[disciplineIndex];
+        const progress = getDisciplineProgress(disciplina);
+        
+        // Atualizar o texto de progresso
+        const progressElement = document.querySelector(`.discipline-progress[data-discipline="${disciplineIndex}"]`);
+        if (progressElement) {
+            progressElement.textContent = `${progress}%`;
+        }
+        
+        // Atualizar o círculo SVG
+        const circle = document.getElementById(`progress-${disciplineIndex}`);
+        if (circle) {
+            circle.style.strokeDashoffset = 97 - (progress * 0.97);
+        }
+    }
+    
+    // Obter progresso de uma disciplina
+    function getDisciplineProgress(disciplina) {
+        let total = disciplina.topicos.length;
+        let completed = 0;
+        
+        disciplina.topicos.forEach(topico => {
+            const topicKey = `${disciplina.nome}-${topico}`;
+            if (completedTopics[topicKey]) {
+                completed++;
+            }
+        });
+        
+        return total > 0 ? Math.round((completed / total) * 100) : 0;
+    }
+    
+    // Renderizar seletor de editais
+    function renderEditalSelector() {
+        editalDropdown.innerHTML = '';
+        
+        if (editais.length === 0) {
+            editalDropdown.innerHTML = `
+                <div class="p-4 text-center text-text-secondary">
+                    Nenhum edital cadastrado
+                </div>
+            `;
+        } else {
+            editais.forEach(edital => {
+                const isActive = edital.id === editalAtivoId;
+                const item = document.createElement('div');
+                item.className = `edital-item ${isActive ? 'active' : ''}`;
+                item.innerHTML = `
+                    <span>${edital.titulo}</span>
+                    <button class="delete-edital" data-id="${edital.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                
+                // Evento para selecionar edital
+                item.querySelector('span').addEventListener('click', () => {
+                    selecionarEdital(edital.id);
+                });
+                
+                // Evento para excluir edital
+                item.querySelector('.delete-edital').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    excluirEdital(edital.id);
+                });
+                
+                editalDropdown.appendChild(item);
+            });
+        }
+        
+        // Botão para adicionar novo edital
+        const addBtn = document.createElement('button');
+        addBtn.className = 'add-edital-btn';
+        addBtn.innerHTML = `
+            <i class="fas fa-plus mr-2"></i> Adicionar novo edital
+        `;
+        addBtn.addEventListener('click', () => {
+            jsonUpload.click();
+            editalDropdown.classList.remove('show');
+        });
+        
+        editalDropdown.appendChild(addBtn);
+        
+        // Atualizar título atual
+        if (editalAtivoId) {
+            const editalAtivo = editais.find(e => e.id === editalAtivoId);
+            if (editalAtivo) {
+                currentEditalEl.textContent = editalAtivo.titulo;
+            }
+        } else {
+            currentEditalEl.textContent = 'Selecione um edital';
+        }
+    }
+    
+    // Selecionar edital
+    function selecionarEdital(id) {
+        editalAtivoId = id;
+        localStorage.setItem('editalAtivoId', id);
+        carregarEditalAtivo();
+        editalDropdown.classList.remove('show');
+    }
+    
+    // Excluir edital
+    function excluirEdital(id) {
+        if (!confirm('Tem certeza que deseja excluir este edital? Todo o progresso será perdido.')) return;
+        
+        // Remover do array
+        editais = editais.filter(edital => edital.id !== id);
+        localStorage.setItem('editais', JSON.stringify(editais));
+        
+        // Remover progresso do localStorage
+        localStorage.removeItem(`completedTopics_${id}`);
+        
+        // Atualizar edital ativo
+        if (editalAtivoId === id) {
+            if (editais.length > 0) {
+                editalAtivoId = editais[0].id;
+                localStorage.setItem('editalAtivoId', editalAtivoId);
+                carregarEditalAtivo();
+            } else {
+                editalAtivoId = null;
+                localStorage.removeItem('editalAtivoId');
+                progressSection.classList.add('hidden');
+                editalContent.innerHTML = `
+                    <div class="text-center max-w-md py-12">
+                        <div class="mx-auto mb-6 w-20 h-20 rounded-full bg-accent-light flex items-center justify-center">
+                            <i class="fas fa-file-import text-3xl text-accent"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Importe seu edital verticalizado</h3>
+                        <p class="text-text-secondary mb-6">Faça upload de um arquivo JSON no formato especificado para começar a acompanhar seu progresso.</p>
+                        <label for="jsonUpload" class="btn-primary px-8 py-3 rounded-xl text-white font-medium cursor-pointer inline-flex items-center space-x-2">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Selecionar Arquivo</span>
+                        </label>
+                        <button id="loadSample" class="mt-4 text-text-secondary hover:text-primary underline text-sm">
+                            Ou carregar dados de exemplo
+                        </button>
+                    </div>
+                `;
+                document.getElementById('loadSample').addEventListener('click', () => {
+                    adicionarNovoEdital({...sampleEdital});
+                });
+            }
+        }
+        
+        renderEditalSelector();
+    }
+    
+    // Toggle dropdown de editais
+    function toggleEditalDropdown() {
+        editalDropdown.classList.toggle('show');
+    }
+    
+    // Reiniciar progresso
+    function reiniciarProgresso() {
+        if (!editalAtivoId) return;
+        
+        completedTopics = {};
+        localStorage.setItem(`completedTopics_${editalAtivoId}`, JSON.stringify(completedTopics));
+        
+        const editalAtivo = editais.find(e => e.id === editalAtivoId);
+        if (editalAtivo) {
+            updateProgress(editalAtivo);
+            renderEdital(editalAtivo);
+        }
+    }
+    
+    // Exportar progresso
+    function exportarProgresso() {
+        if (!editalAtivoId) {
+            alert('Nenhum edital selecionado!');
+            return;
+        }
+        
+        const editalAtivo = editais.find(e => e.id === editalAtivoId);
+        if (!editalAtivo) return;
+        
+        const dataToExport = {
+            ...editalAtivo,
+            completedTopics: completedTopics
+        };
+        
+        const dataStr = JSON.stringify(dataToExport, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        
+        const exportFileDefaultName = `edital_${editalAtivo.titulo.replace(/\s+/g, '_')}_progresso.json`;
+        
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        document.body.appendChild(linkElement);
+        linkElement.click();
+        document.body.removeChild(linkElement);
+    }
+    
+    // Abrir modal de ajuda
+    function openHelpModal() {
+        helpModal.classList.remove('hidden');
+        helpModal.classList.add('flex');
+    }
+    
+    // Fechar modal de ajuda
+    function closeHelpModal() {
+        helpModal.classList.add('hidden');
+    }
+    
+    // Manipular upload de JSON
+    function handleJsonUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const jsonData = JSON.parse(event.target.result);
+                adicionarNovoEdital(jsonData);
+            } catch (error) {
+                alert('Erro ao processar o arquivo JSON. Verifique o formato.');
+                console.error(error);
+            }
+        };
+        reader.readAsText(file);
+        
+        // Resetar o input para permitir novo upload do mesmo arquivo
+        e.target.value = '';
+    }
+    
+    // Iniciar aplicação
+    init();
+</script></body>
+</html>

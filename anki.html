@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ciclos — Foco no Hoje (App Fullscreen)</title>
+<style>
+  /* App-first design: app fills the screen, settings are full-screen panel, strong dark-mode contrast */
+  :root{
+    --bg: #f3f5f7;           /* neutral light */
+    --surface: #ffffff;
+    --text: #06202a;         /* primary text (light theme) */
+    --muted: #556a73;
+    --accent: #1f8fa6;       /* calm teal */
+    --radius:8px;
+    --glass: rgba(8,12,20,0.04);
+  }
+  [data-theme='dark']{
+    --bg: #03151a;          /* dark background */
+    --surface: #062228;     /* slightly lighter panel */
+    --text: #dff6f3;        /* high-contrast text for dark */
+    --muted: #93b4bd;       /* readable muted */
+    --accent: #16a34a;      /* green accent */
+    --glass: rgba(255,255,255,0.04);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;padding:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,'Noto Sans';-webkit-font-smoothing:antialiased;color:var(--text)}
+
+  /* Shell fills viewport so app looks native */
+  .shell{width:100%;height:100vh;display:flex;align-items:stretch}
+  .app{flex:1;display:flex;flex-direction:column;background:var(--surface);}
+
+  /* Top bar */
+  .top{height:64px;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--glass)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:44px;height:44;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+  .title{font-size:1rem;font-weight:700}
+  .sub{font-size:0.88rem;color:var(--muted)}
+  .top-actions{display:flex;gap:8px;align-items:center}
+  .btn{background:transparent;border:0;padding:8px 10px;border-radius:10px;cursor:pointer;color:var(--text)}
+  .btn.ghost{color:var(--muted)}
+
+  /* Main = focus on today's content */
+  .main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:28px}
+  .center{width:100%;max-width:860px}
+
+  .today{background:var(--surface);border-radius:12px;padding:22px;border:1px solid var(--glass);box-shadow:0 8px 30px rgba(2,6,12,0.04)}
+  .today-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .date{font-weight:800;font-size:1.14rem;color:var(--text)}
+  .hint{color:var(--muted);font-size:0.95rem}
+
+  .cards{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+  .card{display:flex;gap:14px;align-items:center;padding:18px;border-radius:10px;background:transparent;border:1px solid var(--glass);min-height:82px}
+  .avatar{width:68px;height:68;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;background:rgba(0,0,0,0.04)}
+  .meta{display:flex;flex-direction:column}
+  .name{font-weight:800;font-size:1.06rem;color:var(--text)}
+  .subtle{color:var(--muted);font-size:0.94rem}
+
+  .controls{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:12px}
+  .primary{background:var(--accent);color:white;padding:10px 14px;border-radius:10px;border:0;cursor:pointer}
+
+  /* Settings: full-screen panel sliding in from right */
+  .settings-wrap{position:fixed;inset:0;display:none;z-index:60}
+  .settings-back{position:absolute;inset:0;background:rgba(2,6,12,0.45)}
+  .settings-panel{position:absolute;right:0;top:0;height:100%;width:100%;max-width:520px;background:var(--surface);box-shadow:-12px 0 30px rgba(2,6,12,0.08);border-left:1px solid var(--glass);padding:22px;display:flex;flex-direction:column;gap:12px}
+  .settings-panel h3{margin:0}
+  .row{display:flex;gap:8px;align-items:center}
+  input, select{padding:10px;border-radius:8px;border:1px solid var(--glass);background:transparent;color:var(--text);flex:1}
+  .list{margin-top:12px;display:flex;flex-direction:column;gap:8px;overflow:auto;flex:1;min-height:0}
+  .list-item{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:8px;border:1px solid var(--glass);background:transparent}
+  .list-item.dragging{opacity:0.5;border-style:dashed}
+
+  /* responsive */
+  @media (max-width:720px){ .avatar{width:56px;height:56px} .card{padding:12px} .settings-panel{max-width:100%} }
+</style>
+</head>
+<body data-theme="light">
+  <div class="shell">
+    <div class="app" role="application" aria-label="Ciclos - app full screen">
+      <div class="top">
+        <div class="brand">
+          <div class="logo">C</div>
+          <div>
+            <div class="title">Ciclos</div>
+            <div class="sub">Abrir e revisar — foco total</div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button id="themeBtn" class="btn" title="Alternar tema">🌓</button>
+          <button id="openSettings" class="btn ghost" title="Abrir configurações">⚙️</button>
+        </div>
+      </div>
+
+      <div class="main">
+        <div class="center">
+          <section class="today">
+            <div class="today-head">
+              <div>
+                <div class="date" id="todayDate">—</div>
+                <div class="hint">Somente o que você precisa revisar hoje — sem distrações.</div>
+              </div>
+              <div class="controls">
+                <!-- botão "Marcar concluído" removido conforme pedido -->
+              </div>
+            </div>
+
+            <div class="cards" id="cardsArea">
+              <!-- cards injected here -->
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings full-screen slide panel (closed by default) -->
+  <div id="settingsWrap" class="settings-wrap" aria-hidden="true">
+    <div class="settings-back"></div>
+    <aside class="settings-panel" role="dialog" aria-modal="true">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Configurações</h3>
+        <div style="display:flex;gap:8px">
+          <button id="closeSettings" class="btn">Fechar</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <label style="min-width:80px;color:var(--muted)">Por dia</label>
+        <input id="perDay" type="number" min="1" value="3">
+      </div>
+
+      <div class="row">
+        <label style="min-width:80px;color:var(--muted)">Início</label>
+        <input id="startDate" type="date">
+      </div>
+
+      <div class="row">
+        <label style="min-width:80px;color:var(--muted)">Dados</label>
+        <div style="display:flex;gap:8px">
+          <button id="exportBtn" class="btn">📤 Exportar</button>
+          <button id="importBtn" class="btn">📥 Importar</button>
+          <input id="importFile" type="file" accept="application/json" style="display:none">
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;flex:1;min-height:0">
+        <div style="font-weight:700;margin-bottom:8px">Baralhos</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+          <input id="newName" type="text" placeholder="Nome do baralho">
+          <input id="newEmoji" type="text" maxlength="2" placeholder="Emoji" style="width:88px">
+          <button id="addBtn" class="btn">Adicionar</button>
+        </div>
+
+        <div class="list" id="deckList"></div>
+      </div>
+
+      <div style="margin-top:auto;display:flex;justify-content:flex-end;gap:8px">
+        <button id="resetBtn" class="btn">♻ Reset</button>
+        <button id="saveSettings" class="btn">Salvar</button>
+      </div>
+    </aside>
+  </div>
+
+<script>
+  // Storage keys
+  const KEY = 'ciclos_focus_v1';
+  const THEME = 'ciclos_focus_theme_v1';
+
+  function nowYMD(){ return new Date().toISOString().slice(0,10); }
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } }
+  function save(s){ localStorage.setItem(KEY, JSON.stringify(s)); }
+
+  // State
+  let state = load();
+  if(!state.decks) state.decks = [];
+  if(!state.perDay) state.perDay = 3;
+  if(state.blockIndex === undefined) state.blockIndex = 0;
+  if(!state.lastDate) state.lastDate = null;
+  if(!state.startDate) state.startDate = nowYMD();
+
+  // DOM
+  const todayDate = document.getElementById('todayDate');
+  const cardsArea = document.getElementById('cardsArea');
+  const settingsWrap = document.getElementById('settingsWrap');
+  const openSettings = document.getElementById('openSettings');
+  const closeSettings = document.getElementById('closeSettings');
+  const perDayInput = document.getElementById('perDay');
+  const startDateInput = document.getElementById('startDate');
+  const newName = document.getElementById('newName');
+  const newEmoji = document.getElementById('newEmoji');
+  const addBtn = document.getElementById('addBtn');
+  const deckList = document.getElementById('deckList');
+  const saveSettings = document.getElementById('saveSettings');
+  const resetBtn = document.getElementById('resetBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const importFile = document.getElementById('importFile');
+  const themeBtn = document.getElementById('themeBtn');
+
+  // Theme init
+  const savedTheme = localStorage.getItem(THEME) || 'light';
+  document.body.setAttribute('data-theme', savedTheme);
+
+  // Helpers
+  const uid = ()=> Math.random().toString(36).slice(2,9);
+  function getBlocks(){ const per = parseInt(state.perDay)||1; const res = []; for(let i=0;i<state.decks.length;i+=per) res.push(state.decks.slice(i,i+per)); return res.length?res:[[]]; }
+  function todayBlock(){ const blocks = getBlocks(); const idx = ((state.blockIndex % blocks.length)+blocks.length)%blocks.length; return blocks[idx]||[]; }
+
+  // Render
+  function renderToday(){
+    // ensure color contrast values for date are set -> using css variables
+    todayDate.textContent = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long'});
+    const today = nowYMD();
+    if(state.lastDate !== today){
+      // advance automatically only if we already had a lastDate (i.e. not first run)
+      if(state.lastDate){
+        state.blockIndex = (state.blockIndex + 1) % Math.max(1, getBlocks().length);
+      }
+      state.lastDate = today;
+      save(state);
+    }
+
+    const list = todayBlock();
+    cardsArea.innerHTML = '';
+    if(!list.length){
+      const el = document.createElement('div'); el.className='card'; el.innerHTML = '<div class="meta"><div class="name">Nenhum baralho configurado</div><div class="subtle">Abra Configurações → adicionar baralhos</div></div>'; cardsArea.appendChild(el); return;
+    }
+
+    list.forEach(d=>{
+      const c = document.createElement('div'); c.className='card';
+      c.innerHTML = `<div class="avatar">${d.emoji||'🃏'}</div><div class="meta"><div class="name">${d.name}</div><div class="subtle">Revisão programada</div></div>`;
+      cardsArea.appendChild(c);
+    });
+  }
+
+  function renderDecks(){
+    deckList.innerHTML = '';
+    state.decks.forEach((d, i)=>{
+      const it = document.createElement('div'); it.className='list-item'; it.draggable = true; it.dataset.index = i;
+      it.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div style="width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center">${d.emoji||'🃏'}</div><div><div style="font-weight:700;color:var(--text)">${d.name}</div><div class="subtle">#${i+1}</div></div></div><div style="display:flex;gap:8px"><button class="btn edit" data-id="${d.id}">✏️</button><button class="btn remove" data-id="${d.id}">🗑️</button></div>`;
+      deckList.appendChild(it);
+    });
+
+    // drag and drop reorder
+    let dragIndex = null;
+    deckList.querySelectorAll('.list-item').forEach(node=>{
+      node.addEventListener('dragstart', e=>{ dragIndex = Number(node.dataset.index); node.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+      node.addEventListener('dragend', e=>{ dragIndex = null; node.classList.remove('dragging'); renderDecks(); });
+      node.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; node.style.border='1px dashed rgba(0,0,0,0.12)'; });
+      node.addEventListener('dragleave', e=>{ node.style.border='1px solid var(--glass)'; });
+      node.addEventListener('drop', e=>{ e.preventDefault(); node.style.border='1px solid var(--glass)'; const toIndex = Number(node.dataset.index); if(dragIndex === null || isNaN(toIndex)) return; const item = state.decks.splice(dragIndex,1)[0]; state.decks.splice(toIndex,0,item); save(state); renderDecks(); renderToday(); });
+    });
+
+    // actions
+    deckList.querySelectorAll('.remove').forEach(b=> b.addEventListener('click', ()=>{ const id=b.dataset.id; state.decks = state.decks.filter(x=>x.id!==id); save(state); renderDecks(); renderToday(); }));
+    deckList.querySelectorAll('.edit').forEach(b=> b.addEventListener('click', ()=>{ const id=b.dataset.id; const d = state.decks.find(x=>x.id===id); const n = prompt('Editar nome', d.name); if(n){ d.name = n; save(state); renderDecks(); renderToday(); } }));
+  }
+
+  // Actions
+  openSettings.addEventListener('click', ()=>{ settingsWrap.style.display = 'block'; settingsWrap.setAttribute('aria-hidden','false'); perDayInput.value = state.perDay; startDateInput.value = state.startDate; renderDecks(); });
+  closeSettings.addEventListener('click', ()=>{ settingsWrap.style.display = 'none'; settingsWrap.setAttribute('aria-hidden','true'); });
+  document.querySelector('.settings-back').addEventListener('click', ()=>{ settingsWrap.style.display = 'none'; settingsWrap.setAttribute('aria-hidden','true'); });
+
+  addBtn.addEventListener('click', ()=>{ const name = newName.value.trim(); if(!name) return alert('Digite um nome'); const emoji = newEmoji.value.trim() || '🃏'; state.decks.push({id:uid(), name, emoji}); newName.value=''; newEmoji.value=''; save(state); renderDecks(); renderToday(); });
+
+  saveSettings.addEventListener('click', ()=>{ const per = parseInt(perDayInput.value) || 1; if(per < 1) return alert('Escolha ao menos 1 por dia'); state.perDay = per; state.startDate = startDateInput.value || state.startDate; save(state); settingsWrap.style.display = 'none'; renderToday(); });
+
+  resetBtn.addEventListener('click', ()=>{ if(confirm('Resetar dados (local)?')){ state = {decks:[], perDay:3, blockIndex:0, lastDate:null, startDate: nowYMD()}; save(state); renderDecks(); renderToday(); settingsWrap.style.display='none'; } });
+
+  // export/import (robust)
+  function exportConfig(){
+    try{
+      const data = JSON.stringify(state, null, 2);
+      const blob = new Blob([data], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'ciclos-config.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }catch(e){ alert('Falha ao exportar'); }
+  }
+  exportBtn.addEventListener('click', exportConfig);
+
+  importBtn.addEventListener('click', ()=> importFile.click());
+  importFile.addEventListener('change', e=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const imported = JSON.parse(reader.result);
+        if(imported && Array.isArray(imported.decks)){
+          // basic sanitization & defaults
+          state.decks = imported.decks.map(d=>({ id: d.id || uid(), name: String(d.name||'Untitled'), emoji: d.emoji || '🃏' }));
+          state.perDay = imported.perDay || state.perDay || 3;
+          state.startDate = imported.startDate || state.startDate || nowYMD();
+          state.blockIndex = imported.blockIndex || 0;
+          state.lastDate = imported.lastDate || null;
+          save(state);
+          renderDecks(); renderToday(); settingsWrap.style.display='none';
+          alert('Importado com sucesso');
+        } else {
+          alert('Arquivo inválido: formato esperado não encontrado');
+        }
+      }catch(err){ alert('Erro ao importar o arquivo'); }
+    };
+    reader.readAsText(file);
+  });
+
+  // theme toggle
+  themeBtn.addEventListener('click', ()=>{ const cur = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.body.setAttribute('data-theme', cur); localStorage.setItem(THEME, cur); });
+  if(localStorage.getItem(THEME)) document.body.setAttribute('data-theme', localStorage.getItem(THEME));
+
+  // midnight update - automatic rollover (no button needed)
+  function msToMidnight(){ const now = new Date(); const t = new Date(now); t.setDate(now.getDate()+1); t.setHours(0,0,0,0); return t - now; }
+  setTimeout(()=>{ renderToday(); setInterval(renderToday, 24*3600*1000); }, msToMidnight()+200);
+
+  // init
+  perDayInput.value = state.perDay; startDateInput.value = state.startDate; renderDecks(); renderToday();
+
+  // expose state for debug
+  window.__CICLOS_STATE = state;
+</script>
+</body>
+</html>

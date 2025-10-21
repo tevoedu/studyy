@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Flashcards Premium</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Cores do tema claro */
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --secondary: #64748b;
+      --light: #f8fafc;
+      --dark: #1e293b;
+      --text: #334155;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --card-bg: #ffffff;
+      --sidebar-bg: #ffffff;
+      --content-bg: #f8fafc;
+      --header-bg: #ffffff;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      --radius: 8px;
+      --sidebar-width: 250px;
+      --transition: all 0.3s ease;
+    }
+    
+    /* Tema escuro */
+    .theme-dark {
+      --primary: #3b82f6;
+      --primary-light: #60a5fa;
+      --primary-dark: #2563eb;
+      --secondary: #94a3b8;
+      --light: #1e293b;
+      --dark: #f8fafc;
+      --text: #e2e8f0;
+      --text-light: #94a3b8;
+      --border: #334155;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --card-bg: #0f172a;
+      --sidebar-bg: #0f172a;
+      --content-bg: #1e293b;
+      --header-bg: #0f172a;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--content-bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+      transition: var(--transition);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      gap: 20px;
+    }
+    
+    .header {
+      background: var(--header-bg);
+      padding: 15px 25px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid var(--border);
+    }
+    
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .header i {
+      font-size: 24px;
+      color: var(--primary);
+    }
+    
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(37, 99, 235, 0.08);
+      padding: 10px 15px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid var(--border);
+      font-size: 14px;
+    }
+    
+    .theme-toggle:hover {
+      background: rgba(37, 99, 235, 0.15);
+    }
+    
+    .theme-toggle i {
+      font-size: 18px;
+      color: var(--primary);
+    }
+    
+    /* Painel Lateral */
+    .sidebar {
+      background: var(--sidebar-bg);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      height: fit-content;
+      border: 1px solid var(--border);
+    }
+    
+    .nav-title {
+      font-size: 14px;
+      margin-bottom: 15px;
+      color: var(--primary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 15px;
+      border-left: 3px solid transparent;
+    }
+    
+    .nav-item:hover, .nav-item.active {
+      background: rgba(37, 99, 235, 0.05);
+      border-left: 3px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .nav-item i {
+      width: 24px;
+      text-align: center;
+      color: var(--text-light);
+    }
+    
+    .nav-item:hover i, .nav-item.active i {
+      color: var(--primary);
+    }
+    
+    /* Conteúdo Principal */
+    .main-content {
+      background: var(--content-bg);
+      border-radius: var(--radius);
+      padding: 30px;
+      box-shadow: var(--shadow);
+      min-height: 600px;
+      border: 1px solid var(--border);
+    }
+    
+    .section-title {
+      font-size: 22px;
+      margin-bottom: 25px;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+    }
+    
+    .section-title i {
+      color: var(--primary);
+    }
+    
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    
+    .card-title {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+    }
+    
+    .card-title i {
+      color: var(--primary);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark);
+      font-size: 15px;
+    }
+    
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--light);
+      color: var(--text);
+      font-family: 'Roboto', sans-serif;
+      font-size: 15px;
+      transition: var(--transition);
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 25px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-secondary {
+      background: var(--secondary);
+    }
+    
+    .btn-secondary:hover {
+      background: #475569;
+    }
+    
+    .code-block {
+      background: var(--light);
+      border-left: 3px solid var(--primary);
+      padding: 15px;
+      border-radius: 0 6px 6px 0;
+      margin: 15px 0;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      line-height: 1.6;
+      font-size: 14px;
+      color: var(--text);
+    }
+    
+    .download-link {
+      display: inline-block;
+      margin-top: 15px;
+      color: var(--primary);
+      background: rgba(37, 99, 235, 0.08);
+      padding: 12px 25px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    
+    .download-link:hover {
+      background: rgba(37, 99, 235, 0.15);
+      transform: translateY(-2px);
+    }
+    
+    .download-link i {
+      margin-right: 8px;
+    }
+    
+    .progress-container {
+      width: 100%;
+      background-color: var(--light);
+      border-radius: 6px;
+      margin: 15px 0;
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+    
+    .progress-bar {
+      height: 8px;
+      background: var(--primary);
+      border-radius: 6px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    
+    .validation-summary {
+      padding: 15px;
+      background: var(--light);
+      border-radius: var(--radius);
+      margin-top: 15px;
+      font-size: 15px;
+      border: 1px solid var(--border);
+    }
+    
+    .success-badge {
+      background: var(--success);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    .warning-badge {
+      background: var(--warning);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    .error-badge {
+      background: var(--danger);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    .flashcard-preview {
+      background: var(--light);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 20px 0;
+      border: 1px solid var(--border);
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .active-section {
+      display: block;
+    }
+    
+    .command-item {
+      background: var(--light);
+      border-radius: var(--radius);
+      padding: 15px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+    }
+    
+    /* Seção de prompts */
+    .file-input-container {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    
+    .file-input-container input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    
+    .file-input-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--primary);
+      padding: 12px 25px;
+      border-radius: 6px;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid var(--border);
+      width: 100%;
+    }
+    
+    .file-input-button:hover {
+      background: rgba(37, 99, 235, 0.15);
+      transform: translateY(-2px);
+    }
+    
+    .file-input-button i {
+      color: var(--primary);
+    }
+    
+    .file-name {
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--text-light);
+      text-align: center;
+    }
+    
+    .prompts-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .folder-item {
+      background: rgba(37, 99, 235, 0.05);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    
+    .folder-item:hover {
+      transform: translateY(-3px);
+      background: rgba(37, 99, 235, 0.08);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .folder-icon {
+      font-size: 40px;
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+    
+    .folder-name {
+      font-weight: 500;
+      font-size: 16px;
+      color: var(--dark);
+    }
+    
+    .folder-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background: var(--light);
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-top: none;
+    }
+    
+    .folder-item.active .folder-options {
+      display: flex;
+    }
+    
+    .folder-option-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      text-decoration: none;
+      transition: all 0.2s;
+      font-size: 14px;
+      text-align: left;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .folder-option-btn:hover {
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--primary);
+    }
+    
+    .folder-option-btn i {
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* Modal para visualização de prompt */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+    }
+    
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      background: var(--light);
+      border-radius: var(--radius);
+      padding: 30px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--border);
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: var(--text-light);
+      font-size: 24px;
+      cursor: pointer;
+      transition: color 0.2s;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    
+    .modal-close:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--dark);
+    }
+    
+    .modal-title {
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+    }
+    
+    .modal-title i {
+      color: var(--primary);
+    }
+    
+    .modal-body {
+      background: var(--light);
+      border-radius: var(--radius);
+      padding: 20px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      max-height: 50vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      font-size: 14px;
+    }
+    
+    /* Mensagem de copiado */
+    .copied-message {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--success);
+      color: white;
+      padding: 12px 25px;
+      border-radius: var(--radius);
+      font-weight: 500;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: var(--transition);
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .copied-message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      
+      .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+      
+      .header-content {
+        justify-content: center;
+      }
+      
+      .sidebar {
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-content">
+        <h1><i class="fas fa-layer-group"></i> Gerador de Flashcards</h1>
+      </div>
+      
+      <div class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+        <span>Tema Escuro</span>
+      </div>
+    </div>
+    
+    <!-- Painel Lateral -->
+    <div class="sidebar">
+      <div class="nav-title"><i class="fas fa-bars"></i> Menu Principal</div>
+      
+      <div class="nav-item active" data-target="format-section">
+        <i class="fas fa-file-alt"></i> Formatador de Flashcards
+      </div>
+      
+      <div class="nav-item" data-target="help-section">
+        <i class="fas fa-question-circle"></i> Ajuda
+      </div>
+      
+      <div class="nav-item" data-target="about-section">
+        <i class="fas fa-info-circle"></i> Sobre a Ferramenta
+      </div>
+      
+      <div class="nav-item" data-target="prompts-section">
+        <i class="fas fa-cogs"></i> Prompts salvos
+      </div>
+    </div>
+    
+    <!-- Conteúdo Principal -->
+    <div class="main-content">
+      <!-- Seção de Formatação -->
+      <section id="format-section" class="active-section">
+        <h2 class="section-title"><i class="fas fa-file-alt"></i> Formatador de Flashcards</h2>
+        
+        <div class="card">
+          <h3 class="card-title"><i class="fas fa-book"></i> Informações do Baralho</h3>
+          
+          <div class="form-group">
+            <label for="deck-name">Nome do Baralho</label>
+            <input type="text" id="deck-name" placeholder="Ex: Conhecimentos Bancários" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="flashcards-raw">Conteúdo dos Flashcards</label>
+            <textarea id="flashcards-raw" placeholder="Cole aqui o conteúdo dos flashcards no formato: 
+Pergunta: [sua pergunta]
+Resposta: [sua resposta]
+
+Pergunta: [outra pergunta]
+Resposta: [outra resposta]" required></textarea>
+          </div>
+          
+          <button id="process-btn" class="btn">
+            <i class="fas fa-magic"></i> Processar Flashcards
+          </button>
+        </div>
+        
+        <div id="format-result" class="card hidden">
+          <h3 class="card-title"><i class="fas fa-check-circle"></i> Resultados do Processamento</h3>
+          <div id="result-content"></div>
+        </div>
+      </section>
+      
+      <!-- Seção de Ajuda -->
+      <section id="help-section" class="hidden">
+        <h2 class="section-title"><i class="fas fa-question-circle"></i> Ajuda</h2>
+        
+        <div class="card">
+          <h3 class="card-title"><i class="fas fa-lightbulb"></i> Como formatar seus flashcards</h3>
+          
+          <p>Para que seus flashcards fiquem bem formatados e sem erros, é preciso seguir uma estrutura padrão.</p>
+          <p>Essa estrutura deve seguir o modelo: <strong>Pergunta: [...] Resposta: [...]</strong>.</p>
+          
+          <div class="code-block">Pergunta: Qual é a capital do Brasil?
+Resposta: Brasília
+
+Pergunta: Qual é a moeda do Brasil?
+Resposta: Real brasileiro (R$)</div>
+          
+          <p>Se quem gera seus flashcards for uma inteligência artificial, você pode facilitar o processo com um comando específico:</p>
+          
+          <div class="code-block">🧠 Quando eu enviar um resumo ou material, siga estas instruções:
+
+1. Leitura detalhada
+– Analise todo o conteúdo com atenção, frase por frase.
+– Identifique conceitos, definições, datas, leis, siglas, órgãos, processos e exemplos importantes.
+
+2. Geração dos flashcards
+– Crie flashcards no formato “Pergunta” e “Resposta”.
+– Cada flashcard deve conter um único conceito-chave.
+– Não use numeração nem listas – apenas sequência direta.
+
+3. Cobertura completa
+– Nenhum conteúdo relevante deve ser ignorado: inclua termos técnicos, leis, etapas de processo, comparações, etc.
+– Se houver tabelas ou exemplos, transforme-os em cards específicos.
+
+4. Clareza e objetividade
+– Use linguagem simples e direta.
+– As perguntas devem testar o entendimento (ex: “O que significa a sigla...?”, “Qual é a função de...?”).
+– As respostas devem ser completas, porém concisas.
+
+5. Exemplo de formatação:
+Pergunta: Por qual lei foi criado o Banco Central do Brasil (BCB)?
+Resposta: Lei n. 4.595/1964.
+
+Pergunta: O que o Banco Central substituiu ao ser criado?
+Resposta: A Superintendência da Moeda e do Crédito (SUMOC).
+
+💬 Instrução final: "Sempre que eu enviar um novo texto ou resumo, aplique esse método para gerar os flashcards."</div>
+        </div>
+      </section>
+      
+      <!-- Seção Sobre -->
+      <section id="about-section" class="hidden">
+        <h2 class="section-title"><i class="fas fa-info-circle"></i> Sobre a Ferramenta</h2>
+        
+        <div class="card">
+          <h3 class="card-title"><i class="fas fa-cog"></i> Gerador de Flashcards</h3>
+          
+          <p>O Gerador de Flashcards é uma ferramenta avançada para criação e formatação de flashcards para estudos.</p>
+          
+          <div class="card" style="margin-top: 20px;">
+            <h3 class="card-title"><i class="fas fa-star"></i> Recursos Principais</h3>
+            <ul style="padding-left: 20px; line-height: 1.8;">
+              <li><strong>Formatação automática</strong> de flashcards</li>
+              <li><strong>Validação de conteúdo</strong> para garantir integridade</li>
+              <li><strong>Destaque automático</strong> de termos importantes</li>
+              <li><strong>Pré-visualização</strong> dos flashcards formatados</li>
+              <li><strong>Exportação fácil</strong> para uso em outras plataformas</li>
+              <li><strong>Temas claro e escuro</strong> para melhor conforto visual</li>
+            </ul>
+          </div>
+          
+          <div class="card" style="margin-top: 20px;">
+            <h3 class="card-title"><i class="fas fa-lightbulb"></i> Dicas de Uso</h3>
+            <ul style="padding-left: 20px; line-height: 1.8;">
+              <li>Use o formato padrão <strong>Pergunta: ... Resposta: ...</strong></li>
+              <li>Mantenha perguntas e respostas concisas</li>
+              <li>Para melhores resultados, limite-se a 20 flashcards por lote</li>
+              <li>Verifique sempre o preview antes de exportar</li>
+              <li>Altere entre temas claro e escuro para melhor conforto visual</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Seção de Prompts Salvos -->
+      <section id="prompts-section" class="hidden">
+        <h2 class="section-title"><i class="fas fa-cogs"></i> Prompts salvos</h2>
+        
+        <div class="card">
+          <h3 class="card-title"><i class="fas fa-upload"></i> Importar Prompt</h3>
+          
+          <div class="form-group">
+            <label for="prompt-name">Nome do Prompt</label>
+            <input type="text" id="prompt-name" placeholder="Ex: Informática">
+          </div>
+          
+          <div class="form-group">
+            <label>Selecione um arquivo .txt</label>
+            <div class="file-input-container">
+              <button class="file-input-button">
+                <i class="fas fa-folder-open"></i> Escolher Arquivo
+              </button>
+              <input type="file" id="prompt-file" accept=".txt">
+            </div>
+            <div id="file-name" class="file-name">Nenhum arquivo selecionado</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="prompt-content">Ou cole o prompt aqui</label>
+            <textarea id="prompt-content" placeholder="Cole ou digite o prompt aqui"></textarea>
+          </div>
+          
+          <button id="import-btn" class="btn">
+            <i class="fas fa-upload"></i> Importar e Salvar
+          </button>
+          
+          <div id="import-message" class="hidden" style="margin-top: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; color: var(--success);"></div>
+        </div>
+        
+        <div class="card">
+          <h3 class="card-title"><i class="fas fa-folder"></i> Prompts Salvos</h3>
+          <div class="prompts-container" id="prompt-list">
+            <!-- Os prompts salvos serão exibidos aqui como pastas -->
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  
+  <!-- Modal para visualização de prompt -->
+  <div class="modal" id="prompt-modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close">&times;</button>
+      <h3 class="modal-title"><i class="fas fa-file-alt"></i> <span id="modal-title">Visualizar Prompt</span></h3>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+  
+  <!-- Mensagem de copiado -->
+  <div class="copied-message" id="copied-message">
+    <i class="fas fa-check-circle"></i> Copiado para área de transferência!
+  </div>
+
+  <script>
+    // ====== Estados e dados ======
+    let deckName = '';
+    let flashcardsRaw = '';
+    
+    // ====== Constantes e dados ======
+    const BANCO_TERMOS = [
+      'CDI', 'CDB', 'LCI', 'LCA', 'LC', 'Poupança', 'Tesouro Direto', 'Selic', 'IPCA', 'IGPM',
+      'TR', 'IOF', 'IR', 'CET', 'TAC', 'TEC', 'CCB', 'CC', 'FGTS', 'INSS',
+      'COFINS', 'PIS', 'PASEP', 'FGC', 'SUSEP', 'CVM', 'BACEN', 'CMN', 'SFN', 'SFH',
+      'SAC', 'PRICE', 'Risco', 'Rentabilidade', 'Investimento', 'Patrimônio', 'Lucro',
+      'Despesas', 'Receita', 'Ativos', 'Passivos', 'Dívida', 'Capital', 'Juros Compostos',
+      'Amortização', 'Correção Monetária', 'Inflação', 'Spread Bancário', 'Margem de Lucro',
+      'Grammar', 'Vocabulary', 'Pronunciation', 'Speaking', 'Listening', 'Reading', 'Writing',
+      'Tenses', 'Verb', 'Noun', 'Adjective', 'Preposition', 'Phrasal Verb', 'Idioms', 'TOEFL',
+      'IELTS', 'Translation', 'Cognates', 'False Friends', 'Slang', 'Collocation', 'Conjunction',
+      'Modal Verb', 'Passive Voice', 'Reported Speech', 'Conditionals', 'Gerund', 'Infinitive',
+      'Subjunctive', 'Articles', 'Possessive', 'Comparative', 'Superlative', 'Synonyms',
+      'Antonyms', 'Homophones', 'Homonyms', 'Vocabulary Building', 'Context Clues', 'Fluency',
+      'Software', 'Hardware', 'Algoritmo', 'Banco de Dados', 'Rede', 'Internet', 'Cloud',
+      'Big Data', 'Inteligência Artificial', 'Machine Learning', 'Programação', 'Frontend',
+      'Backend', 'Fullstack', 'API', 'JSON', 'HTML', 'CSS', 'JavaScript', 'Python', 'SQL',
+      'Linux', 'Windows', 'Firewall', 'Criptografia', 'Segurança da Informação', 'Backup',
+      'Servidores', 'DevOps', 'Virtualização', 'Blockchain', 'Token', 'Git', 'Versionamento',
+      'Deploy', 'Terminal', 'Shell', 'Script', 'Compilador', 'Framework', 'Linguagem de Programação',
+      'Prospect', 'Lead', 'Cliente', 'Pitch', 'Follow-up', 'Objeção', 'Fechamento', 'Pipeline',
+      'CRM', 'Conversão', 'Meta', 'KPI', 'ROI', 'Networking', 'Parceria', 'Negociação', 'Persuasão',
+      'Valor agregado', 'Benchmarking', 'Churn', 'Upselling', 'Cross-selling', 'Briefing',
+      'Proposta Comercial', 'Contrato', 'Funil de Vendas', 'Customer Success', 'Onboarding',
+      'NPS', 'CSAT', 'Fidelização', 'Retenção', 'Lifetime Value', 'CAC', 'ABM', 'Inbound', 'Outbound',
+      'Ortografia', 'Gramática', 'Sintaxe', 'Semântica', 'Morfologia', 'Pronomes', 'Verbos',
+      'Substantivos', 'Adjetivos', 'Advérbios', 'Conjunção', 'Preposição', 'Coesão', 'Coerência',
+      'Paronímia', 'Homônimos', 'Homônimos', 'Antônimos', 'Sinônimos', 'Interpretação de Texto',
+      'Figuras de Linguagem', 'Metáfora', 'Metonímia', 'Hipérbole', 'Eufemismo', 'Ironia',
+      'Ambiguidade', 'Pleonasmo', 'Redundância', 'Ortografia Oficial', 'Regência', 'Concordância',
+      'Crase', 'Acentuação', 'Variedade Linguística', 'Linguagem Formal', 'Linguagem Informal',
+      'O que é', 'Qual', 'Por que', 'Como', 'Quando', 'Onde', 'Para que serve', 'Diferença',
+      'Exemplo prático', 'Explicação rápida', 'Resumo importante', 'Fique atento', 'Cuidado',
+      'Lembre-se', 'Passo a passo', 'Resumo final', 'Defina', 'Explique', 'Compare', 'Liste',
+      'Descreva', 'Identifique', 'Demonstre', 'Cite exemplos', 'Diferencie', 'Relacione', 'Interprete',
+      'Definição', 'Exemplo', 'Dica', 'Importante', 'Atenção', 'Lembrete', 'Resumo', 'Nota',
+      'Explicação', 'Termo', 'Palavra-chave', 'Conceito', 'Fórmula', 'Teoria', 'Prática',
+      'Resumo Teórico', 'Resumo Prático', 'Ponto-chave', 'Destaque', 'Análise', 'Síntese',
+      'Aplicação', 'Objetivo', 'Hipótese', 'Metodologia', 'Resultado', 'Conclusão',
+      'Competência', 'Habilidade', 'Conhecimento', 'Capacitação', 'Formação', 'Avaliação',
+      'Critério', 'Indicador', 'Planejamento', 'Estratégia', 'Tática', 'Proatividade',
+      'Gestão de Tempo', 'Prioridades', 'Eficiência', 'Eficácia', 'Produtividade', 'Organização',
+      'Comunicação', 'Empatia', 'Resiliência', 'Liderança', 'Trabalho em Equipe', 'Networking'
+    ];
+    
+    const SIMBOLOS = { 
+      'bullets': ['•', '◦', '▪', '–', '-', '‣', '⁃', '◉', '◎', '○'],
+      'setas': ['➔', '➙', '➛', '➜', '➞', '➤', '⤷', '→', '⇒', '⇨'],
+      'destaques': ['⚠️', '💡', '❗', '❕', '‼️', '❣️', '💖', '💥', '🔥', '✨']
+    };
+    
+    const EMOJIS = { 
+      'Conhecimentos Bancários': ['🏦', '💰', '💳', '💸', '💹', '📈', '📊', '📉', '🧾', '🪙'],
+      'Vendas e Negociação': ['🤝', '📊', '💼', '📈', '📉', '🛍️', '🛒', '💸', '🏷️', '🏪'],
+      'Português': ['📚', '✍️', '🔤', '📝', '📖', '📒', '📓', '📕', '📗', '📘'],
+      'Inglês': ['🌎', '🔠', '📝', '📚', '🇺🇸', '🇬🇧', '🗽', '🎓', '💬', '📖'],
+      'Atualidades Mercado Financeiro': ['📈', '📰', '🌐', '💹', '📊', '📉', '💰', '💵', '💸', '💴'],
+      'Informática': ['💻', '🖥️', '📱', '⌨️', '🖱️', '🖲️', '🧑‍💻', '👨‍💻', '👩‍💻', '🧮'],
+      'Default': ['📋', '📄', '📑', '📝', '🗒️', '📃', '🖊️', '🖋️', '✒️', '📌']
+    };
+    
+    const PALETAS = { 
+      'Conhecimentos Bancários': [
+        { bg: '#F0F4F8', border: '#B2C3D6', text: '#2C3E50', destaque: '#dc2626' },
+        { bg: '#E6F2FF', border: '#99C2FF', text: '#003366', destaque: '#0052cc' }
+      ],
+      'Vendas e Negociação': [
+        { bg: '#FFF3E0', border: '#FFCC80', text: '#EF6C00', destaque: '#c2410c' },
+        { bg: '#FFF8E1', border: '#FFECB3', text: '#FF6F00', destaque: '#ff8f00' }
+      ],
+      'Português': [
+        { bg: '#F5F5F5', border: '#BDBDBD', text: '#212121', destaque: '#4f46e5' },
+        { bg: '#EDE7F6', border: '#D1C4E9', text: '#4527A0', destaque: '#5b21b6' }
+      ],
+      'Inglês': [
+        { bg: '#FFF8E1', border: '#FFECB3', text: '#FF6F00', destaque: '#ea580c' },
+        { bg: '#E3F2FD', border: '#BBDEFB', text: '#0D47A1', destaque: '#1e88e5' }
+      ],
+      'Atualidades Mercado Financeiro': [
+        { bg: '#ECEFF1', border: '#B0BEC5', text: '#37474F', destaque: '#0f766e' },
+        { bg: '#E8F5E9', border: '#C8E6C9', text: '#1B5E20', destaque: '#2e7d32' }
+      ],
+      'Informática': [
+        { bg: '#EDE7F6', border: '#B39DDB', text: '#4527A0', destaque: '#5b21b6' },
+        { bg: '#F3E5F5', border: '#E1BEE7', text: '#6A1B9A', destaque: '#9c27b0' }
+      ],
+      'Default': [
+        { bg: '#FAFAFA', border: '#E0E0E0', text: '#424242', destaque: '#dc2626' },
+        { bg: '#F5F5F5', border: '#E0E0E0', text: '#212121', destaque: '#0f766e' }
+      ]
+    };
+    
+    const KEYWORDS = { 
+      'Conhecimentos Bancários': ['banco', 'poupança', 'investimento', 'juros', 'taxa', 'crédito', 'débito'], 
+      'Vendas e Negociação': ['venda', 'negociação', 'cliente', 'proposta', 'contrato', 'objeção'], 
+      'Português': ['gramática', 'ortografia', 'sintaxe', 'concordância', 'regência', 'crase'], 
+      'Inglês': ['english', 'vocabulary', 'grammar', 'listening', 'speaking', 'writing'], 
+      'Atualidades Mercado Financeiro': ['mercado', 'ações', 'bolsa', 'câmbio', 'inflação', 'juros'], 
+      'Informática': ['computador', 'sistema', 'software', 'hardware', 'internet', 'programa'] 
+    };
+
+    // ====== Funções utilitárias ======
+    function escapeRegex(string) { 
+      return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'); 
+    }
+    
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+    
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    
+    function escapeHtml(str) { 
+      const div = document.createElement('div'); 
+      div.textContent = str; 
+      return div.innerHTML; 
+    }
+    
+    function getCurrentTime() {
+      const now = new Date();
+      return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    }
+    
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = Math.floor(seconds % 60);
+      return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    }
+    
+    // ====== Funções principais ======
+    function aplicarDestaqueEspecial(texto) {
+      BANCO_TERMOS.forEach(termo => {
+        const padrao = new RegExp(`(?<!\\w)(${escapeRegex(termo)})(?!\\w)`, 'gi');
+        texto = texto.replace(padrao, `<span style="color: ${getRandomColor()}; font-weight: bold;">$1</span>`);
+      });
+      return texto;
+    }
+    
+    function getRandomColor() {
+      const colors = ['#dc2626', '#0f766e', '#4f46e5', '#c2410c', '#5b21b6'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    function detectarTemas(texto) {
+      const lowerText = texto.toLowerCase();
+      const scores = {};
+      Object.keys(KEYWORDS).forEach(tema => scores[tema] = 0);
+      Object.entries(KEYWORDS).forEach(([tema, palavras]) => {
+        palavras.forEach(palavra => {
+          const padrao = new RegExp(`\\b${escapeRegex(palavra)}\\b`, 'i');
+          if (padrao.test(lowerText)) scores[tema]++;
+        });
+      });
+      const temasOrdenados = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+      const detectados = temasOrdenados.filter(([_, score]) => score > 0).map(([tema, _]) => tema);
+      return detectados.slice(0, 2).length ? detectados.slice(0, 2) : ['Default'];
+    }
+    
+    function aplicarEstilos(texto, temas) {
+      texto = aplicarDestaqueEspecial(texto);
+      const palavrasChave = [...new Set(temas.flatMap(t => KEYWORDS[t] || []))];
+      shuffleArray(palavrasChave);
+      
+      palavrasChave.slice(0, 3).forEach(palavra => {
+        const estiloOpcoes = [
+          `<b>$1</b>`, 
+          `<i>$1</i>`, 
+          `<span style="color: ${getRandomColor()}">$1</span>`, 
+          `<u>$1</u>`
+        ];
+        const escolha = estiloOpcoes[getRandomInt(0, estiloOpcoes.length - 1)];
+        const padrao = new RegExp(`\\b(${escapeRegex(palavra)})\\b`, 'gi');
+        texto = texto.replace(padrao, escolha);
+      });
+      
+      return texto;
+    }
+    
+    // ======== FUNÇÕES DE VALIDAÇÃO E SEGURANÇA ========
+    function validarFormatoFlashcards(texto) {
+      const padrao = /(?:pergunta|frente|question|front)\s*[:]\s*([\s\S]*?)\s*(?:resposta|verso|answer|back)\s*[:]\s*([\s\S]*?)(?=\s*(?:pergunta|frente|question|front)\s*[:]|$)/gims;
+      
+      const blocos = [];
+      let match;
+      while ((match = padrao.exec(texto)) !== null) {
+        blocos.push({
+          pergunta: match[1].trim(),
+          resposta: match[2].trim(),
+          match: match[0]
+        });
+      }
+      
+      return blocos;
+    }
+    
+    function verificarIntegridade(original, processados) {
+      const normalizar = str => str
+        .replace(/\s+/g, ' ')
+        .replace(/[^\w\s]/g, '')
+        .toLowerCase();
+      
+      const conteudoOriginal = normalizar(original);
+      let conteudoProcessado = '';
+      
+      processados.forEach(card => {
+        conteudoProcessado += normalizar(card.pergunta + card.resposta);
+      });
+      
+      const diferenca = Math.abs(conteudoOriginal.length - conteudoProcessado.length);
+      const similaridade = conteudoProcessado.includes(conteudoOriginal) || 
+                           conteudoOriginal.includes(conteudoProcessado);
+      
+      return {
+        completo: similaridade && diferenca < 100,
+        diferenca,
+        similaridade
+      };
+    }
+    
+    function sanitizarConteudo(texto) {
+      return texto
+        .replace(/</g, '<')
+        .replace(/>/g, '>');
+    }
+    
+    // ======== FUNÇÃO PRINCIPAL ATUALIZADA ========
+    function processarFlashcards(rawInput) {
+      try {
+        const textoSanitizado = sanitizarConteudo(rawInput);
+        const blocos = validarFormatoFlashcards(textoSanitizado);
+        
+        if (blocos.length === 0) {
+          throw new Error("Nenhum flashcard detectado. Verifique o formato.");
+        }
+        
+        const integridade = verificarIntegridade(textoSanitizado, blocos);
+        
+        const cards = [];
+        blocos.forEach(bloco => {
+          const temas = detectarTemas(bloco.pergunta + ' ' + bloco.resposta);
+          const temaPrincipal = temas[0] || 'Default';
+          const cores = PALETAS[temaPrincipal][Math.floor(Math.random() * PALETAS[temaPrincipal].length)];
+          
+          const perguntaEstilizada = aplicarEstilos(bloco.pergunta, temas);
+          const respostaFormatada = formatarConteudo(bloco.resposta, temaPrincipal);
+          
+          const frente = gerarCard('frente', perguntaEstilizada, temaPrincipal);
+          const verso = gerarCard('verso', respostaFormatada, temaPrincipal);
+          
+          cards.push(`${frente}\t${verso}`);
+        });
+        
+        return {
+          cards,
+          blocos,
+          integridade
+        };
+      } catch (erro) {
+        console.error("Erro no processamento:", erro);
+        throw erro;
+      }
+    }
+    
+    // ======== MELHORIAS NA FUNÇÃO DE FORMATAR CONTEÚDO ========
+    function formatarConteudo(texto, tema) {
+      const linhasFormatadas = [];
+      const marcadoresValidos = [...SIMBOLOS.bullets, ...SIMBOLOS.setas, ...SIMBOLOS.destaques];
+      const padraoMarcadores = new RegExp(`^\\s*([${marcadoresValidos.map(escapeRegex).join('')}])\\s*`);
+
+      const linhas = texto.split('\n');
+      linhas.forEach(linhaBruta => {
+        let linha = linhaBruta.trim();
+        if (!linha) return;
+
+        // Escolher um emoji aleatório do tema
+        const usarEmoji = Math.random() > 0.5;
+        const emoji = usarEmoji ? EMOJIS[tema][Math.floor(Math.random() * EMOJIS[tema].length)] : '';
+        
+        // Escolher um marcador aleatório
+        const marcador = marcadoresValidos[Math.floor(Math.random() * marcadoresValidos.length)];
+        
+        // Verificar se já existe um marcador na linha
+        const marcadorExistente = linha.match(padraoMarcadores);
+        if (marcadorExistente) {
+          linha = linha.replace(padraoMarcadores, '').trim();
+        }
+        
+        let linhaFormatada = `${emoji} ${marcador} ${linha}`;
+        
+        // Aplicar estilos especiais com base no conteúdo
+        if (linha.toLowerCase().includes('atenção') || linha.includes('!')) {
+          linhaFormatada = `<div style="border-left: 3px solid ${PALETAS[tema][0].destaque}; padding-left: 8px;">${linhaFormatada}</div>`;
+        } else if (linha.toLowerCase().includes('exemplo') || linha.includes('💡')) {
+          linhaFormatada = `<div style="background: ${PALETAS[tema][0].destaque}15; padding: 6px; border-radius: 4px;">${linhaFormatada}</div>`;
+        } else if (linha.toLowerCase().includes('importante')) {
+          linhaFormatada = `<strong style="color: ${PALETAS[tema][0].destaque}">${linhaFormatada}</strong>`;
+        }
+        
+        linhasFormatadas.push(linhaFormatada);
+      });
+      
+      return linhasFormatadas.join('<br>');
+    }
+    
+    // Função atualizada para gerar cards no formato Anki especificado
+    function gerarCard(tipo, conteudo, tema) {
+      const emoji = EMOJIS[tema][Math.floor(Math.random() * EMOJIS[tema].length)];
+      
+      if (tipo === 'frente') {
+        return `<div style="background: #F0F4F8; border: 1px solid #B2C3D6; color: #2C3E50; border-radius: 10px; padding: 12px; margin: 3px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: left;"><b>${emoji} ${conteudo}</b></div>`;
+      } else {
+        return `<div style="border: 1px solid #B2C3D6; color: #2C3E50; background: #FFFFFF; border-radius: 10px; padding: 12px; margin: 3px;"><b>📌 Resposta:</b><br>${conteudo}</div>`;
+      }
+    }
+    
+    // ====== Interface Web ======
+    document.addEventListener('DOMContentLoaded', function() {
+      // Navegação
+      const navItems = document.querySelectorAll('.nav-item');
+      const sections = document.querySelectorAll('.main-content > section');
+      
+      navItems.forEach(item => {
+        item.addEventListener('click', function() {
+          const target = this.getAttribute('data-target');
+          
+          navItems.forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          
+          sections.forEach(s => {
+            s.classList.remove('active-section');
+            s.classList.add('hidden');
+          });
+          
+          document.getElementById(target).classList.remove('hidden');
+          document.getElementById(target).classList.add('active-section');
+        });
+      });
+      
+      // Processamento de flashcards
+      const processBtn = document.getElementById('process-btn');
+      const formatResult = document.getElementById('format-result');
+      const resultContent = document.getElementById('result-content');
+      
+      processBtn.addEventListener('click', function() {
+        deckName = document.getElementById('deck-name').value.trim();
+        flashcardsRaw = document.getElementById('flashcards-raw').value.trim();
+        
+        if (!deckName || !flashcardsRaw) {
+          alert('Por favor, preencha todos os campos!');
+          return;
+        }
+        
+        resultContent.innerHTML = `
+          <div class="progress-container">
+            <div class="progress-bar" style="width: 0%"></div>
+            <div style="text-align: center; margin-top: 5px; font-size: 12px;">0%</div>
+          </div>
+          <p style="text-align: center; margin-top: 10px;">Processando seus flashcards...</p>
+        `;
+        
+        formatResult.classList.remove('hidden');
+        
+        const progressBar = resultContent.querySelector('.progress-bar');
+        const progressText = resultContent.querySelector('div:last-child');
+        
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          progress += 10;
+          progressBar.style.width = `${progress}%`;
+          progressText.textContent = `${progress}%`;
+          
+          if (progress >= 100) {
+            clearInterval(progressInterval);
+            
+            try {
+              const resultado = processarFlashcards(flashcardsRaw);
+              const cards = resultado.cards;
+              
+              const content = cards.join('\n');
+              const dataStr = 'data:text/plain;charset=utf-8,' + encodeURIComponent(content);
+              
+              let validationHTML;
+              if (resultado.integridade.completo) {
+                validationHTML = `
+                  <div class="validation-summary">
+                    <span class="success-badge">✓</span> 
+                    <strong>Validação Completa:</strong><br>
+                    - ${cards.length} flashcards processados<br>
+                    - 0 conteúdos perdidos<br>
+                    - Formatação preservada
+                  </div>
+                `;
+              } else {
+                validationHTML = `
+                  <div class="validation-summary">
+                    <span class="warning-badge">⚠️</span> 
+                    <strong>Validação com Observações:</strong><br>
+                    - ${cards.length} flashcards processados<br>
+                    - ${resultado.integridade.diferenca} caracteres com diferença<br>
+                    - Formatação preservada<br>
+                    <em>Isso não afeta a qualidade dos flashcards!</em>
+                  </div>
+                `;
+              }
+              
+              const firstCard = resultado.blocos[0];
+              const previewHTML = `
+                <div class="flashcard-preview">
+                  <strong>Frente:</strong> ${firstCard.pergunta}<br><br>
+                  <strong>Verso:</strong> ${firstCard.resposta}
+                </div>
+              `;
+              
+              resultContent.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                  <h3 class="card-title"><i class="fas fa-check-circle"></i> ${cards.length} flashcards formatados com sucesso!</h3>
+                  ${validationHTML}
+                  <a href="${dataStr}" download="${deckName}.txt" class="download-link">
+                    <i class="fas fa-download"></i> Baixar ${deckName}.txt
+                  </a>
+                </div>
+                ${previewHTML}
+              `;
+              
+            } catch (erro) {
+              const errorDetails = {
+                'Nenhum flashcard detectado. Verifique o formato.': 
+                  `Revise o formato dos seus flashcards. Exemplo válido:<br>
+                  <div class="code-block">Pergunta: Qual é a capital do Brasil?<br>Resposta: Brasília</div>`,
+                  
+                'O texto dos flashcards está vazio.':
+                  'Você enviou um texto vazio. Por favor, insira os flashcards.'
+              };
+              
+              const solucao = errorDetails[erro.message] || 
+                `Erro inesperado: ${erro.message}<br>Por favor, tente novamente ou divida seus flashcards em blocos menores.`;
+              
+              resultContent.innerHTML = `
+                <div class="validation-summary" style="background: rgba(239, 68, 68, 0.1);">
+                  <span class="error-badge">❌</span> 
+                  <strong>Erro de processamento:</strong><br>
+                  ${solucao}
+                </div>
+              `;
+            }
+          }
+        }, 200);
+      });
+      
+      // Controle de tema claro/escuro
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIcon = themeToggle.querySelector('i');
+      const themeLabel = themeToggle.querySelector('span');
+      
+      themeToggle.addEventListener('click', function() {
+        if (document.body.classList.contains('theme-dark')) {
+          document.body.classList.remove('theme-dark');
+          themeIcon.className = 'fas fa-moon';
+          themeLabel.textContent = 'Tema Escuro';
+          localStorage.setItem('theme', 'light');
+        } else {
+          document.body.classList.add('theme-dark');
+          themeIcon.className = 'fas fa-sun';
+          themeLabel.textContent = 'Tema Claro';
+          localStorage.setItem('theme', 'dark');
+        }
+      });
+      
+      // Aplicar tema salvo
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('theme-dark');
+        themeIcon.className = 'fas fa-sun';
+        themeLabel.textContent = 'Tema Claro';
+      }
+      
+      // ====== Gerenciamento de Prompts Salvos ======
+      const importBtn = document.getElementById('import-btn');
+      const commandFile = document.getElementById('prompt-file');
+      const commandContent = document.getElementById('prompt-content');
+      const commandName = document.getElementById('prompt-name');
+      const commandList = document.getElementById('prompt-list');
+      const importMessage = document.getElementById('import-message');
+      const fileName = document.getElementById('file-name');
+      const promptModal = document.getElementById('prompt-modal');
+      const modalTitle = document.getElementById('modal-title');
+      const modalBody = document.getElementById('modal-body');
+      const modalClose = document.getElementById('modal-close');
+      const copiedMessage = document.getElementById('copied-message');
+
+      // Atualizar nome do arquivo selecionado
+      commandFile.addEventListener('change', function() {
+        if (this.files.length > 0) {
+          fileName.textContent = this.files[0].name;
+        } else {
+          fileName.textContent = 'Nenhum arquivo selecionado';
+        }
+      });
+
+      // Importar prompt
+      importBtn.addEventListener('click', function() {
+        const file = commandFile.files[0];
+        const name = commandName.value.trim();
+        const content = commandContent.value.trim();
+        
+        if (!name) {
+          alert('Por favor, informe um nome para o prompt.');
+          return;
+        }
+        
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const fileContent = e.target.result;
+            saveCommand(name, fileContent);
+            displayCommands();
+            commandFile.value = '';
+            commandName.value = '';
+            commandContent.value = '';
+            fileName.textContent = 'Nenhum arquivo selecionado';
+            showImportMessage('Prompt salvo com sucesso!');
+          };
+          reader.readAsText(file);
+        } else if (content) {
+          saveCommand(name, content);
+          displayCommands();
+          commandName.value = '';
+          commandContent.value = '';
+          showImportMessage('Prompt salvo com sucesso!');
+        } else {
+          alert('Por favor, selecione um arquivo ou insira o prompt no campo de texto.');
+        }
+      });
+
+      // Salvar prompt no localStorage
+      function saveCommand(name, content) {
+        let commands = JSON.parse(localStorage.getItem('flashcard-commands')) || [];
+        commands.push({ name, content });
+        localStorage.setItem('flashcard-commands', JSON.stringify(commands));
+      }
+
+      // Exibir prompts salvos como pastas
+      function displayCommands() {
+        const commands = JSON.parse(localStorage.getItem('flashcard-commands')) || [];
+        commandList.innerHTML = '';
+        
+        if (commands.length === 0) {
+          commandList.innerHTML = '<p>Nenhum prompt salvo ainda. Importe seu primeiro prompt!</p>';
+          return;
+        }
+        
+        commands.forEach((command, index) => {
+          const folderItem = document.createElement('div');
+          folderItem.className = 'folder-item';
+          folderItem.dataset.index = index;
+          
+          folderItem.innerHTML = `
+            <div class="folder-icon">
+              <i class="fas fa-folder"></i>
+            </div>
+            <div class="folder-name">${command.name}</div>
+            <div class="folder-options">
+              <button class="folder-option-btn" onclick="viewCommand(${index})">
+                <i class="fas fa-eye"></i> Visualizar
+              </button>
+              <button class="folder-option-btn" onclick="copyCommand(${index})">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+              <button class="folder-option-btn" onclick="editCommand(${index})">
+                <i class="fas fa-edit"></i> Editar
+              </button>
+              <button class="folder-option-btn" onclick="deleteCommand(${index})">
+                <i class="fas fa-trash"></i> Excluir
+              </button>
+            </div>
+          `;
+          
+          commandList.appendChild(folderItem);
+        });
+        
+        // Adicionar evento de clique nas pastas
+        document.querySelectorAll('.folder-item').forEach(item => {
+          item.addEventListener('click', function(e) {
+            if (!e.target.closest('.folder-option-btn')) {
+              this.classList.toggle('active');
+              
+              // Fechar outras pastas abertas
+              document.querySelectorAll('.folder-item').forEach(otherItem => {
+                if (otherItem !== this && otherItem.classList.contains('active')) {
+                  otherItem.classList.remove('active');
+                }
+              });
+            }
+          });
+        });
+      }
+
+      // Mostrar mensagem de importação
+      function showImportMessage(message) {
+        importMessage.textContent = message;
+        importMessage.classList.remove('hidden');
+        setTimeout(() => {
+          importMessage.classList.add('hidden');
+        }, 3000);
+      }
+
+      // Mostrar mensagem de copiado
+      function showCopiedMessage() {
+        copiedMessage.classList.add('show');
+        setTimeout(() => {
+          copiedMessage.classList.remove('show');
+        }, 2000);
+      }
+
+      // Visualizar prompt
+      window.viewCommand = function(index) {
+        const commands = JSON.parse(localStorage.getItem('flashcard-commands')) || [];
+        const command = commands[index];
+        modalTitle.textContent = command.name;
+        modalBody.textContent = command.content;
+        promptModal.classList.add('active');
+      }
+
+      // Copiar prompt
+      window.copyCommand = function(index) {
+        const commands = JSON.parse(localStorage.getItem('flashcard-commands')) || [];
+        const command = commands[index];
+        navigator.clipboard.writeText(command.content)
+          .then(() => {
+            showCopiedMessage();
+          })
+          .catch(err => {
+            console.error('Erro ao copiar: ', err);
+            alert('Erro ao copiar. Tente novamente.');
+          });
+      }
+
+      // Editar prompt
+      window.editCommand = function(index) {
+        const commands = JSON.parse(localStorage.getItem('flashcard-commands')) || [];
+        const command = commands[index];
+        const newContent = prompt('Edite o prompt:', command.content);
+        if (newContent !== null) {
+          commands[index].content = newContent;
+          localStorage.setItem('flashcard-commands', JSON.stringify(commands));
+          displayCommands();
+        }
+      }
+
+      // Excluir prompt
+      window.deleteCommand = function(index) {
+        if (confirm('Tem certeza que deseja excluir este prompt?')) {
+          let commands = JSON.parse(localStorage.getItem('flashcard-commands')) || [];
+          commands.splice(index, 1);
+          localStorage.setItem('flashcard-commands', JSON.stringify(commands));
+          displayCommands();
+        }
+      }
+
+      // Fechar modal
+      modalClose.addEventListener('click', function() {
+        promptModal.classList.remove('active');
+      });
+      
+      promptModal.addEventListener('click', function(e) {
+        if (e.target === promptModal) {
+          promptModal.classList.remove('active');
+        }
+      });
+
+      // Carregar prompts salvos
+      displayCommands();
+    });
+  </script>
+</body>
+</html>

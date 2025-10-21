@@ -1,0 +1,3659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Tracker - Sistema de Revisão Aprimorado</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ================== VARIÁVEIS DE TEMA ================== */
+        :root {
+            /* Tema escuro (padrão) */
+            --primary-red: #d32f2f;
+            --primary-green: #4CAF50;
+            --primary-blue: #2196F3;
+            --primary-purple: #9C27B0;
+            --primary-yellow: #FFC107;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --card-border: #2c2c2c;
+            --text-primary: #e0e0e0;
+            --text-secondary: #aaa;
+            --overdue-color: #ff9800;
+            --header-bg: linear-gradient(135deg, var(--primary-red), #b71c1c);
+            --header-text: white;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --empty-state-color: var(--text-secondary);
+            --stat-card-bg: var(--card-border);
+            --stat-card-shadow: rgba(0, 0, 0, 0.3);
+            --table-hover: rgba(255, 255, 255, 0.05);
+            --search-bg: var(--card-bg);
+            --search-text: var(--text-primary);
+            --backup-border: var(--primary-blue);
+            --backup-bg: rgba(33, 150, 243, 0.1);
+        }
+        [data-theme="light"] {
+            /* Tema claro com paleta melhorada */
+            --primary-red: #C0392B;
+            --primary-green: #27AE60;
+            --primary-blue: #2980B9;
+            --primary-purple: #8E44AD;
+            --primary-yellow: #F39C12;
+            --dark-bg: #FFFFFF;
+            --card-bg: #F7F9FA;
+            --card-border: #E1E4E7;
+            --text-primary: #2C3E50;
+            --text-secondary: #7F8C8D;
+            --overdue-color: #E67E22;
+            --header-bg: linear-gradient(135deg, #3498DB, #2980B9);
+            --header-text: white;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --empty-state-color: #95a5a6;
+            --stat-card-bg: #FFFFFF;
+            --stat-card-shadow: rgba(0, 0, 0, 0.05);
+            --table-hover: rgba(0, 0, 0, 0.02);
+            --search-bg: white;
+            --search-text: #2C3E50;
+            --backup-border: #3498DB;
+            --backup-bg: rgba(52, 152, 219, 0.1);
+        }
+        /* ================== ESTILOS GERAIS ================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            background-color: var(--card-bg);
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            flex-wrap: wrap;
+            position: relative;
+        }
+        
+        .tab-btn {
+            background-color: var(--card-border);
+            color: var(--text-primary);
+            border: none;
+            padding: 12px 24px;
+            margin: 0 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        
+        .tab-btn:hover {
+            background-color: var(--primary-red);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .tab-btn.active {
+            background-color: var(--primary-red);
+            color: white;
+            box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3);
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 15px var(--shadow-color);
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Disciplinas */
+        .discipline-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .discipline-card {
+            background-color: var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .discipline-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px var(--shadow-color);
+        }
+        
+        .discipline-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background-color: var(--primary-red);
+        }
+        
+        .discipline-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .discipline-card h3 {
+            color: var(--primary-red);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            flex: 1;
+            font-weight: 600;
+        }
+        
+        .discipline-card p {
+            margin: 5px 0;
+            color: var(--text-secondary);
+        }
+        
+        .discipline-card .topics-count {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--primary-green);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        
+        .discipline-card .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 5px;
+        }
+        
+        .discipline-card .delete-btn:hover {
+            color: var(--primary-red);
+        }
+        
+        /* Assuntos */
+        .discipline-board {
+            display: flex;
+            gap: 25px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .prancheta {
+            flex: 1;
+            min-width: 300px;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            background-color: var(--card-border);
+        }
+        
+        .prancheta-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .prancheta.red {
+            background-color: rgba(211, 47, 47, 0.1);
+            border: 2px solid var(--primary-red);
+        }
+        
+        .prancheta.green {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 2px solid var(--primary-green);
+        }
+        
+        .prancheta.yellow {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 2px solid var(--primary-yellow);
+        }
+        
+        .prancheta.blue {
+            background-color: rgba(33, 150, 243, 0.1);
+            border: 2px solid var(--primary-blue);
+        }
+        
+        .prancheta h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+        }
+        
+        .prancheta.red h3 {
+            color: var(--primary-red);
+        }
+        
+        .prancheta.green h3 {
+            color: var(--primary-green);
+        }
+        
+        .prancheta.yellow h3 {
+            color: var(--primary-yellow);
+        }
+        
+        .prancheta.blue h3 {
+            color: var(--primary-blue);
+        }
+        
+        .topic-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+        }
+        
+        .topic-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 6px var(--shadow-color);
+            position: relative;
+            border: 1px solid var(--card-border);
+        }
+        
+        .topic-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+        
+        .topic-card-header > div {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .topic-card h4 {
+            margin-bottom: 0;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            flex: 1;
+            font-weight: 600;
+        }
+        
+        .topic-card .material {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .topic-card .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .topic-card .stat {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .topic-card .stat .value {
+            font-weight: bold;
+            color: var(--primary-green);
+        }
+        
+        .topic-card .stat .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .topic-card .review-date {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-top: 5px;
+            color: var(--text-primary);
+        }
+        
+        .topic-card .review-date.overdue {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: var(--overdue-color);
+        }
+        
+        .topic-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .topic-card .btn-review {
+            background-color: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .topic-card .btn-review:hover {
+            background-color: #b71c1c;
+            transform: scale(1.05);
+        }
+        
+        .topic-card .btn-suspend {
+            background-color: var(--primary-yellow);
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .topic-card .btn-suspend:hover {
+            background-color: #e0a800;
+        }
+        
+        .topic-card .btn-unsuspend {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .topic-card .btn-unsuspend:hover {
+            background-color: #0b7dda;
+        }
+        
+        .topic-card .delete-topic-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 5px;
+        }
+        
+        .topic-card .delete-topic-btn:hover {
+            color: var(--primary-red);
+        }
+        
+        /* Formulários */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-red);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .btn-primary:hover {
+            background-color: #b71c1c;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--card-border);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #3a3a3a;
+        }
+        
+        .btn-blue {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        
+        .btn-blue:hover {
+            background-color: #0b7dda;
+            transform: translateY(-2px);
+        }
+        
+        .btn-purple {
+            background-color: var(--primary-purple);
+            color: white;
+        }
+        
+        .btn-purple:hover {
+            background-color: #7b1fa2;
+            transform: translateY(-2px);
+        }
+        
+        /* Modais */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        
+        .modal-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header h3 {
+            color: var(--primary-red);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close-modal:hover {
+            color: var(--primary-red);
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background-color: var(--card-border);
+            color: var(--text-primary);
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            display: none;
+            z-index: 2000;
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* Botão Voltar */
+        .back-btn {
+            background-color: var(--card-border);
+            color: var(--text-primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background-color: #3a3a3a;
+            transform: translateY(-2px);
+        }
+        
+        /* Estado vazio */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--empty-state-color);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--primary-red);
+        }
+        
+        .empty-state h3 {
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        /* Tempo estimado */
+        .time-estimate {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--primary-green);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        /* Backup */
+        .backup-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .backup-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .backup-info {
+            background-color: var(--backup-bg);
+            border: 1px solid var(--backup-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .backup-info h4 {
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        
+        .backup-info p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+        
+        /* Dashboard de Estatísticas */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--stat-card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px var(--stat-card-shadow);
+            transition: transform 0.3s ease;
+            border: 1px solid var(--card-border);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .chart-container {
+            background-color: var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-header h3 {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .chart-filters {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chart-wrapper {
+            height: 300px;
+            position: relative;
+        }
+        
+        .table-container {
+            background-color: var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            overflow-x: auto;
+        }
+        
+        .table-filters {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .table-filters .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .table-search {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .search-box {
+            position: relative;
+            max-width: 300px;
+            width: 100%;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            background-color: var(--search-bg);
+            color: var(--search-text);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .stats-table th,
+        .stats-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-table th {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--primary-red);
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .stats-table th:hover {
+            background-color: rgba(211, 47, 47, 0.1);
+        }
+        
+        .stats-table tr:hover {
+            background-color: var(--table-hover);
+        }
+        
+        .accuracy-cell {
+            font-weight: bold;
+        }
+        
+        .accuracy-high {
+            color: #27AE60;
+        }
+        
+        .accuracy-medium {
+            color: #F39C12;
+        }
+        
+        .accuracy-low {
+            color: #C0392B;
+        }
+        
+        /* Novos estilos para o sistema de repetição espaçada */
+        .priority-badge {
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+            font-weight: 500;
+        }
+        
+        .priority-low {
+            background-color: #27AE60;
+        }
+        
+        .priority-medium {
+            background-color: #F39C12;
+        }
+        
+        .priority-high {
+            background-color: #C0392B;
+        }
+        
+        .memory-strength-bar {
+            height: 8px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .memory-strength-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #C0392B, #F39C12, #27AE60);
+        }
+        
+        .review-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .review-details span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* ================== MELHORIAS VISUAIS SOLICITADAS ================== */
+        
+        /* 1. Ícone de Edição (Canetinha) */
+        .edit-topic-btn {
+            cursor: pointer;
+            padding: 6px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            color: var(--text-secondary);
+            background-color: transparent;
+        }
+        
+        .edit-topic-btn:hover {
+            color: var(--primary-blue);
+            background-color: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 8px rgba(33, 150, 243, 0.3);
+        }
+        
+        /* 2. Botão "Desempenho" (quando a disciplina está sem SM-2) */
+        .topic-card .btn-performance {
+            background-color: var(--primary-yellow);
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .topic-card .btn-performance:hover {
+            background-color: #e0a800;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 3. Botões de Dificuldade (na tela "Registrar Progresso") */
+        .difficulty-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex: 1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .difficulty-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            filter: brightness(1.1);
+        }
+        
+        .difficulty-btn[data-value="0"] { 
+            background-color: #C0392B; 
+            color: white; 
+        }
+        
+        .difficulty-btn[data-value="1"] { 
+            background-color: #F39C12; 
+            color: white; 
+        }
+        
+        .difficulty-btn[data-value="2"] { 
+            background-color: #27AE60; 
+            color: white; 
+        }
+        
+        .difficulty-btn[data-value="3"] { 
+            background-color: #2980B9; 
+            color: white; 
+        }
+        
+        .difficulty-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .difficulty-btn.pulse {
+            animation: pulse 0.5s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Botão de Tema */
+        .theme-toggle-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        /* Responsividade */
+        @media (max-width: 900px) {
+            .discipline-board {
+                flex-direction: column;
+            }
+            
+            .discipline-list {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .stats-overview {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .nav-tabs {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .discipline-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-btn {
+                width: 100%;
+                margin: 0;
+            }
+            
+            .backup-buttons {
+                flex-direction: column;
+            }
+            
+            .chart-filters {
+                flex-direction: column;
+            }
+            
+            .theme-toggle-btn {
+                position: relative;
+                top: auto;
+                right: auto;
+                transform: none;
+                margin-top: 10px;
+                align-self: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">   
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="disciplines">
+                <i class="fas fa-graduation-cap"></i> Disciplinas
+            </button>
+            <button class="tab-btn" data-tab="add-discipline">
+                <i class="fas fa-plus-circle"></i> Nova Disciplina
+            </button>
+            <button class="tab-btn" data-tab="add-topic">
+                <i class="fas fa-plus"></i> Novo Assunto
+            </button>
+            <button class="tab-btn" data-tab="reviews">
+                <i class="fas fa-calendar-check"></i> Revisões
+            </button>
+            <button class="tab-btn" data-tab="dashboard">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </button>
+            <button class="tab-btn" data-tab="retention-map">
+                <i class="fas fa-brain"></i> Mapa de Retenção
+            </button>
+            
+            <button id="themeToggle" class="theme-toggle-btn" aria-label="Alternar tema">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+        
+        <!-- Tab: Lista de Disciplinas -->
+        <div id="disciplines" class="tab-content active">
+            <h2><i class="fas fa-list"></i> Disciplinas Cadastradas</h2>
+            <p class="description">Clique em uma disciplina para ver seus assuntos e revisões</p>
+            
+            <div class="discipline-list" id="disciplineList">
+                <!-- As disciplinas serão carregadas aqui via JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Tab: Adicionar Nova Disciplina -->
+        <div id="add-discipline" class="tab-content">
+            <h2><i class="fas fa-plus-circle"></i> Adicionar Nova Disciplina</h2>
+            
+            <div class="form-group">
+                <label for="disciplineName">Nome da Disciplina:</label>
+                <input type="text" id="disciplineName" class="form-control" placeholder="Ex: Matemática, Português...">
+            </div>
+            
+            <button id="addDisciplineBtn" class="btn btn-primary">
+                <i class="fas fa-save"></i> Salvar Disciplina
+            </button>
+        </div>
+        
+        <!-- Tab: Adicionar Novo Assunto -->
+        <div id="add-topic" class="tab-content">
+            <h2><i class="fas fa-plus"></i> Adicionar Novo Assunto</h2>
+            
+            <div class="form-group">
+                <label for="topicDiscipline">Disciplina:</label>
+                <select id="topicDiscipline" class="form-control">
+                    <option value="">Selecione uma disciplina</option>
+                    <!-- As disciplinas serão carregadas aqui via JavaScript -->
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="topicName">Nome do Assunto:</label>
+                <input type="text" id="topicName" class="form-control" placeholder="Ex: Funções, Acentuação Gráfica...">
+            </div>
+            
+            <div class="form-group">
+                <label for="topicMaterial">Material Base:</label>
+                <input type="text" id="topicMaterial" class="form-control" placeholder="Ex: PDF Aula 3, Livro Capítulo 5...">
+            </div>
+            
+            <div class="form-group">
+                <label for="topicImportance">Importância (1-5):</label>
+                <input type="number" id="topicImportance" class="form-control" min="1" max="5" value="3" oninput="this.value = Math.max(1, Math.min(5, this.value))">
+            </div>
+            
+            <div class="form-group">
+                <label for="topicReviewMethod">Sistema de Revisão:</label>
+                <select id="topicReviewMethod" class="form-control">
+                    <option value="sm2">Repetição Espaçada (SM-2)</option>
+                    <option value="fixed">Revisão por Desempenho</option>
+                </select>
+            </div>
+            
+            <button id="addTopicBtn" class="btn btn-primary">
+                <i class="fas fa-save"></i> Salvar Assunto
+            </button>
+        </div>
+        
+        <!-- Tab: Revisões -->
+        <div id="reviews" class="tab-content">
+            <h2><i class="fas fa-calendar-check"></i> Revisões Pendentes</h2>
+            <p class="description">Assuntos priorizados com base na dificuldade e tempo desde a última revisão</p>
+            
+            <div class="session-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="dailyProgress"></div>
+                </div>
+                <div class="progress-text" id="progressText">0/4 revisões completadas</div>
+                <button id="reviewGoalConfig" class="config-btn" style="background: none; border: none; color: #aaa; cursor: pointer; margin-left: 10px;">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+            
+            <div class="time-estimate">
+                <i class="fas fa-clock"></i> Tempo estimado para esta sessão: <span id="sessionTimeEstimate">45 minutos</span>
+            </div>
+            
+            <div id="reviewList">
+                <!-- As revisões serão carregadas aqui via JavaScript -->
+            </div>
+            
+            <!-- Seção para revisões automáticas -->
+            <div class="prancheta blue">
+                <div class="prancheta-header">
+                    <h3><i class="fas fa-robot"></i> Revisões Automáticas (Baixa Prioridade)</h3>
+                </div>
+                <div class="topic-list" id="autoAddedTopics">
+                    <!-- Assuntos adicionados automaticamente serão mostrados aqui -->
+                </div>
+            </div>
+            
+            <div class="backup-section">
+                <h3><i class="fas fa-database"></i> Backup e Restauração de Dados</h3>
+                <p>Exporte ou importe todos os seus dados de estudo</p>
+                
+                <div class="backup-buttons">
+                    <button id="exportBtn" class="btn btn-blue">
+                        <i class="fas fa-file-export"></i> Exportar Dados
+                    </button>
+                    <button id="importBtn" class="btn btn-blue">
+                        <i class="fas fa-file-import"></i> Importar Dados
+                    </button>
+                </div>
+                
+                <!-- Informações sobre backup automático -->
+                <div class="backup-info">
+                    <h4><i class="fas fa-history"></i> Backup Automático</h4>
+                    <p><i class="fas fa-info-circle"></i> Um backup automático é feito a cada 2 dias</p>
+                    <p><i class="fas fa-clock"></i> Último backup: <span id="lastBackupInfo">Nenhum backup realizado ainda</span></p>
+                    <p><i class="fas fa-download"></i> Próximo backup em: <span id="nextBackupInfo">-</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tela de Assuntos de uma Disciplina -->
+        <div id="topicsTab" class="tab-content">
+            <button class="back-btn" id="backToDisciplines">
+                <i class="fas fa-arrow-left"></i> Voltar para Disciplinas
+            </button>
+            
+            <h2 id="disciplineTitle"><i class="fas fa-book"></i> Disciplina</h2>
+            
+            <div class="discipline-board">
+                <div class="prancheta red">
+                    <div class="prancheta-header">
+                        <h3><i class="fas fa-exclamation-circle"></i> Revisões para Hoje/Atrasadas</h3>
+                    </div>
+                    <div class="topic-list" id="redTopics">
+                        <!-- Assuntos vencidos/para hoje -->
+                    </div>
+                </div>
+                
+                <div class="prancheta green">
+                    <div class="prancheta-header">
+                        <h3><i class="fas fa-check-circle"></i> Revisões Futuras</h3>
+                    </div>
+                    <div class="topic-list" id="greenTopics">
+                        <!-- Assuntos futuros -->
+                    </div>
+                </div>
+                
+                <div class="prancheta yellow">
+                    <div class="prancheta-header">
+                        <h3><i class="fas fa-pause-circle"></i> Assuntos Suspensos</h3>
+                    </div>
+                    <div class="topic-list" id="yellowTopics">
+                        <!-- Assuntos suspensos -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard de Estatísticas -->
+        <div id="dashboard" class="tab-content">
+            <h2><i class="fas fa-chart-line"></i> Dashboard de Estatísticas</h2>
+            <p class="description">Visualize seu desempenho e progresso de estudo</p>
+            
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <i class="fas fa-question-circle" style="color: #2196F3;"></i>
+                    <h3>Total de Questões</h3>
+                    <div class="value" id="totalQuestions">0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <i class="fas fa-check-circle" style="color: #4CAF50;"></i>
+                    <h3>Total de Acertos</h3>
+                    <div class="value" id="totalCorrect">0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <i class="fas fa-times-circle" style="color: #F44336;"></i>
+                    <h3>Total de Erros</h3>
+                    <div class="value" id="totalIncorrect">0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <i class="fas fa-calendar-times" style="color: #FF9800;"></i>
+                    <h3>Revisões Pendentes</h3>
+                    <div class="value" id="pendingReviews">0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <i class="fas fa-calendar-check" style="color: #9C27B0;"></i>
+                    <h3>Revisões Feitas</h3>
+                    <div class="value" id="completedReviews">0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <i class="fas fa-percentage" style="color: #00BCD4;"></i>
+                    <h3>Acurácia</h3>
+                    <div class="value" id="overallAccuracy">0%</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-bar"></i> Desempenho por Disciplina</h3>
+                    <div class="chart-filters">
+                        <button class="btn btn-purple active" data-chart="accuracy">Acurácia</button>
+                        <button class="btn btn-purple" data-chart="questions">Questões</button>
+                        <button class="btn btn-purple" data-chart="reviews">Revisões</button>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-pie"></i> Distribuição de Estudo</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <h3><i class="fas fa-table"></i> Estatísticas Detalhadas por Assunto</h3>
+                
+                <!-- Filtros para a tabela -->
+                <div class="table-filters">
+                    <div class="form-group">
+                        <label for="disciplineFilter">Filtrar por Disciplina:</label>
+                        <select id="disciplineFilter" class="form-control">
+                            <option value="">Todas as disciplinas</option>
+                            <!-- As disciplinas serão carregadas aqui via JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="accuracyFilter">Filtrar por Acurácia:</label>
+                        <select id="accuracyFilter" class="form-control">
+                            <option value="">Todas as acurácias</option>
+                            <option value="80">Acima de 80%</option>
+                            <option value="60">Acima de 60%</option>
+                            <option value="50">Acima de 50%</option>
+                            <option value="below50">Abaixo de 50%</option>
+                            <option value="below40">Abaixo de 40%</option>
+                            <option value="below20">Abaixo de 20%</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-search">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="tableSearch" placeholder="Pesquisar disciplina ou assunto...">
+                    </div>
+                </div>
+                
+                <table class="stats-table" id="statsTable">
+                    <thead>
+                        <tr>
+                            <th data-sort="discipline">Disciplina</th>
+                            <th data-sort="topic">Assunto</th>
+                            <th data-sort="questions">Questões</th>
+                            <th data-sort="correct">Acertos</th>
+                            <th data-sort="incorrect">Erros</th>
+                            <th data-sort="accuracy">Acurácia</th>
+                            <th data-sort="easeFactor">Fator Facilidade</th>
+                            <th data-sort="interval">Intervalo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTableBody">
+                        <!-- Dados serão preenchidos por JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Mapa de Retenção -->
+        <div id="retention-map" class="tab-content">
+            <h2><i class="fas fa-brain"></i> Mapa de Retenção</h2>
+            <p class="description">Visualize a força da memória para cada assunto e planeje suas revisões</p>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3><i class="fas fa-fire"></i> Força da Memória por Assunto</h3>
+                    <div class="chart-filters">
+                        <select id="retentionFilter" class="form-control" style="max-width: 200px;">
+                            <option value="all">Todos os assuntos</option>
+                            <option value="critical">Críticos (retenção &lt; 40%)</option>
+                            <option value="attention">Atenção (40-70%)</option>
+                            <option value="consolidated">Consolidados (&gt; 70%)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="retentionChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <h3><i class="fas fa-table"></i> Detalhes de Retenção</h3>
+                <div class="review-details" style="margin-bottom: 20px;">
+                    <span><i class="fas fa-circle" style="color: #f44336;"></i> Crítico (0-40%)</span>
+                    <span><i class="fas fa-circle" style="color: #ff9800;"></i> Atenção (40-70%)</span>
+                    <span><i class="fas fa-circle" style="color: #4caf50;"></i> Consolidado (70-100%)</span>
+                </div>
+                
+                <table class="stats-table" id="retentionTable">
+                    <thead>
+                        <tr>
+                            <th>Disciplina</th>
+                            <th>Assunto</th>
+                            <th>Força da Memória</th>
+                            <th>Próxima Revisão</th>
+                            <th>Dificuldade</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="retentionTableBody">
+                        <!-- Dados serão preenchidos por JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Registrar Progresso -->
+    <div class="modal" id="progressModal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            
+            <div class="modal-header">
+                <h3><i class="fas fa-tasks"></i> Registrar Progresso</h3>
+            </div>
+            
+            <div class="form-group">
+                <label for="questionsInput">Quantidade de Questões Resolvidas:</label>
+                <input type="number" id="questionsInput" class="form-control" min="0" value="10">
+            </div>
+            
+            <div class="form-group">
+                <label for="correctInput">Quantidade de Acertos:</label>
+                <input type="number" id="correctInput" class="form-control" min="0" value="8">
+            </div>
+            
+            <div class="form-group">
+                <label>Tempo Estimado: <span id="estimatedTime">20 min</span></label>
+            </div>
+            
+            <div class="form-group">
+                <label>Próxima Revisão: <span id="nextReviewDate">--/--/----</span></label>
+            </div>
+            
+            <div class="form-group">
+                <label>Dificuldade:</label>
+                <div class="difficulty-options" style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="difficulty-btn" data-value="0">Não lembrei</button>
+                    <button class="difficulty-btn" data-value="1">Difícil</button>
+                    <button class="difficulty-btn" data-value="2">Bom</button>
+                    <button class="difficulty-btn" data-value="3">Fácil</button>
+                </div>
+            </div>
+            
+            <button id="saveProgressBtn" class="btn btn-primary">
+                <i class="fas fa-save"></i> Salvar Progresso
+            </button>
+        </div>
+    </div>
+    
+    <!-- Modal de Confirmação -->
+    <div class="modal" id="confirmationModal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            
+            <div class="modal-header">
+                <h3 id="confirmationTitle"><i class="fas fa-exclamation-triangle"></i> Confirmação</h3>
+            </div>
+            
+            <p id="confirmationMessage">Tem certeza que deseja realizar esta ação?</p>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button id="cancelBtn" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button id="confirmBtn" class="btn btn-primary">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Configurar Meta Diária -->
+    <div class="modal" id="goalConfigModal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            
+            <div class="modal-header">
+                <h3><i class="fas fa-tasks"></i> Configurar Meta Diária</h3>
+            </div>
+            
+            <div class="form-group">
+                <label for="dailyGoalInput">Quantidade de revisões diárias desejadas:</label>
+                <input type="number" id="dailyGoalInput" class="form-control" min="1" value="4">
+            </div>
+            
+            <button id="saveGoalBtn" class="btn btn-primary">
+                <i class="fas fa-save"></i> Salvar
+            </button>
+        </div>
+    </div>
+    
+    <!-- Modal para Editar Assunto -->
+    <div class="modal" id="editTopicModal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Editar Assunto</h3>
+            </div>
+            
+            <div class="form-group">
+                <label for="editTopicName">Nome do Assunto:</label>
+                <input type="text" id="editTopicName" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="editTopicMaterial">Material Base:</label>
+                <input type="text" id="editTopicMaterial" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="editTopicImportance">Importância (1-5):</label>
+                <input type="number" id="editTopicImportance" class="form-control" min="1" max="5" value="3">
+            </div>
+            
+            <div class="form-group">
+                <label for="editReviewMethod">Sistema de Revisão:</label>
+                <select id="editReviewMethod" class="form-control">
+                    <option value="sm2">Repetição Espaçada (SM-2)</option>
+                    <option value="fixed">Revisão por Desempenho</option>
+                </select>
+            </div>
+            
+            <button id="saveEditTopicBtn" class="btn btn-primary">
+                <i class="fas fa-save"></i> Salvar Alterações
+            </button>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // Funções auxiliares para datas
+        function parseDate(dateValue) {
+            if (!dateValue) return null;
+            
+            // Se for número (timestamp), converter para Date
+            if (typeof dateValue === 'number') {
+                return new Date(dateValue);
+            }
+            
+            // Tenta interpretar como string ISO
+            const isoDate = new Date(dateValue);
+            if (!isNaN(isoDate.getTime())) {
+                return isoDate;
+            }
+            
+            // Tenta interpretar como formato dd/mm/aaaa
+            const parts = dateValue.split('/');
+            if (parts.length === 3) {
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1; // mês de 0 a 11
+                const year = parseInt(parts[2], 10);
+                const date = new Date(year, month, day);
+                if (!isNaN(date.getTime())) {
+                    return date;
+                }
+            }
+            
+            return null;
+        }
+        
+        function formatDate(dateValue) {
+            if (!dateValue) return '';
+            
+            const date = parseDate(dateValue);
+            if (!date || isNaN(date.getTime())) return '';
+            
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        function getToday() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return today.getTime(); // Retorna timestamp
+        }
+        
+        function dateFromTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            date.setHours(0, 0, 0, 0);
+            return date;
+        }
+        
+        // Função para migrar dados legados
+        function migrateLegacyData(disciplines) {
+            return disciplines.map(discipline => {
+                // Converter assuntos para novo formato
+                const assuntos = discipline.assuntos.map(topic => {
+                    // Converter datas para timestamp
+                    if (topic.nextReviewDate) {
+                        const date = parseDate(topic.nextReviewDate);
+                        topic.nextReviewDate = date ? date.getTime() : null;
+                    }
+                    
+                    if (topic.lastReviewed) {
+                        const date = parseDate(topic.lastReviewed);
+                        topic.lastReviewed = date ? date.getTime() : null;
+                    }
+                    
+                    // Garantir que todos os campos existam
+                    return {
+                        ...topic,
+                        repetitions: topic.repetitions ?? 0,
+                        easeFactor: topic.easeFactor ?? 2.5,
+                        interval: topic.interval ?? 1,
+                        lastReviewed: topic.lastReviewed ?? null,
+                        difficultyHistory: topic.difficultyHistory ?? [],
+                        importance: topic.importance ?? 3,
+                        memoryStrength: topic.memoryStrength ?? 0.7,
+                        autoAddedForReview: topic.autoAddedForReview ?? false,
+                        reviewMethod: topic.reviewMethod || 'sm2' // Retrocompatibilidade
+                    };
+                });
+                
+                return { ...discipline, assuntos };
+            });
+        }
+        
+        // Função para sanitizar HTML e remover caracteres perigosos
+        const sanitizeHTML = (str) => {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML.replace(/[<>'"&]/g, '');
+        };
+        
+        // Validador de schema para importação
+        function isValidData(data) {
+            return Array.isArray(data) && data.every(discipline => {
+                return typeof discipline.name === 'string' && 
+                       Array.isArray(discipline.assuntos) &&
+                       discipline.assuntos.every(topic => 
+                           typeof topic.nome === 'string' &&
+                           (topic.questions === undefined || Number.isInteger(topic.questions))
+                       );
+            });
+        }
+        
+        // Verificação de integridade
+        function integrityCheck(disciplines) {
+            return disciplines.every(discipline => {
+                const validName = typeof discipline.name === 'string';
+                const validTopics = Array.isArray(discipline.assuntos);
+                
+                const topicValid = discipline.assuntos.every(topic => {
+                    return typeof topic.nome === 'string' &&
+                           topic.importance >= 1 && topic.importance <= 5 &&
+                           (topic.nextReviewDate === null || typeof topic.nextReviewDate === 'number') &&
+                           (topic.lastReviewed === null || typeof topic.lastReviewed === 'number');
+                });
+                
+                return validName && validTopics && topicValid;
+            });
+        }
+        
+        // Função para restaurar backup (melhorada)
+        function restoreBackup() {
+            showToast("Dados corrompidos! Restaurando backup...");
+            
+            // Tentar restaurar de um backup recente
+            const backupData = localStorage.getItem('disciplines_backup');
+            if (backupData) {
+                try {
+                    const parsed = JSON.parse(backupData);
+                    if (integrityCheck(parsed)) {
+                        disciplines = migrateLegacyData(parsed);
+                        localStorage.setItem('disciplines', JSON.stringify(disciplines));
+                        showToast("Dados restaurados do backup!");
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Falha ao restaurar backup:", e);
+                }
+            }
+            
+            // Se não conseguir restaurar, limpar os dados
+            disciplines = [];
+            localStorage.removeItem('disciplines');
+            showToast("Não foi possível restaurar os dados. Iniciando novo sistema.");
+        }
+        
+        // Função para calcular intervalo baseado em desempenho
+        function getPerformanceBasedInterval(accuracy) {
+            // Limitar a precisão entre 0 e 100
+            accuracy = Math.max(0, Math.min(100, accuracy));
+            
+            // Definir intervalos conforme solicitação
+            if (accuracy >= 100) return 30;
+            if (accuracy >= 80) return 25;
+            if (accuracy >= 60) return 15;
+            if (accuracy >= 40) return 7;
+            return 3; // Para qualquer percentual abaixo de 40
+        }
+        
+        // Algoritmo SM-2 modificado (corrigido)
+        function calculateNextReviewSM2(q, currentEF, currentInterval, repetitions) {
+            let newEF = currentEF + (0.1 - (3 - q) * (0.08 + (3 - q) * 0.02));
+            newEF = Math.max(1.3, Math.min(newEF, 2.5)); // Limitar entre 1.3 e 2.5
+            let newInterval;
+            if (q < 2) { // Não lembrou ou difícil: resetar
+                newInterval = 1;
+                repetitions = 0; // reiniciar contagem de repetições
+            } else {
+                if (repetitions === 0) {
+                    newInterval = 1;
+                } else if (repetitions === 1) {
+                    newInterval = 3;
+                } else {
+                    newInterval = Math.round(currentInterval * newEF);
+                }
+                repetitions++;
+            }
+            return { newInterval, newEF, repetitions };
+        }
+        
+        // Calcular força da memória (corrigido)
+        function calculateMemoryStrength(topic) {
+            if (!topic.lastReviewed) return 0.5;
+            
+            const now = getToday();
+            const lastReview = topic.lastReviewed;
+            
+            // A diferença deve ser positiva (última revisão <= hoje)
+            const diffTime = Math.max(0, now - lastReview);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Fórmula simplificada para força da memória
+            const baseStrength = 0.9;
+            const decayRate = 0.15;
+            let strength = baseStrength * Math.exp(-decayRate * diffDays);
+            
+            // Ajustar com base na dificuldade média
+            if (topic.difficultyHistory.length > 0) {
+                const avgDifficulty = topic.difficultyHistory.reduce((a, b) => a + b, 0) / topic.difficultyHistory.length;
+                strength *= (1 - (avgDifficulty * 0.15)); // Reduzir força para assuntos mais difíceis
+            }
+            
+            return Math.min(Math.max(strength, 0.1), 0.95);
+        }
+        
+        // Estrutura de dados atualizada com algoritmo de repetição espaçada
+        let disciplines = JSON.parse(localStorage.getItem('disciplines')) || [];
+        
+        // Aplicar migração de dados legados
+        disciplines = migrateLegacyData(disciplines);
+        
+        // Verificar integridade dos dados
+        if (!integrityCheck(disciplines)) {
+            console.error("Integrity check failed! Restoring backup...");
+            restoreBackup();
+        }
+        
+        // Elementos DOM
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const disciplineList = document.getElementById('disciplineList');
+        const topicsTab = document.getElementById('topicsTab');
+        const backToDisciplinesBtn = document.getElementById('backToDisciplines');
+        const disciplineTitle = document.getElementById('disciplineTitle');
+        const redTopics = document.getElementById('redTopics');
+        const greenTopics = document.getElementById('greenTopics');
+        const yellowTopics = document.getElementById('yellowTopics');
+        const progressModal = document.getElementById('progressModal');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const closeModalBtns = document.querySelectorAll('.close-modal');
+        const toast = document.getElementById('toast');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const confirmationTitle = document.getElementById('confirmationTitle');
+        const confirmationMessage = document.getElementById('confirmationMessage');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const statsTableBody = document.getElementById('statsTableBody');
+        const tableSearch = document.getElementById('tableSearch');
+        const disciplineFilter = document.getElementById('disciplineFilter');
+        const accuracyFilter = document.getElementById('accuracyFilter');
+        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+        const retentionTableBody = document.getElementById('retentionTableBody');
+        const retentionFilter = document.getElementById('retentionFilter');
+        const dailyProgress = document.getElementById('dailyProgress');
+        const progressText = document.getElementById('progressText');
+        const themeToggle = document.getElementById('themeToggle');
+        let performanceChart = null;
+        let distributionChart = null;
+        let retentionChart = null;
+        let statsData = [];
+        let currentDifficulty = 2; // Valor padrão: Bom
+        let currentDisciplineIndex = null;
+        let currentTopicIndex = null;
+        let pendingAction = null;
+        let pendingIndex = null;
+        let sortColumn = 'discipline';
+        let sortDirection = 'asc';
+        let dailyCompletedReviews = parseInt(localStorage.getItem('dailyCompletedReviews')) || 0;
+        let lastReviewDate = localStorage.getItem('lastReviewDate') || new Date().toISOString().split('T')[0];
+        let dailyReviewGoal = parseInt(localStorage.getItem('dailyReviewGoal')) || 4;
+        let currentEditTopicIndex = null; // Para armazenar o índice do tópico sendo editado
+        
+        // Verificar se é um novo dia para resetar o contador
+        const today = new Date().toISOString().split('T')[0];
+        if (today !== lastReviewDate) {
+            dailyCompletedReviews = 0;
+            localStorage.setItem('dailyCompletedReviews', dailyCompletedReviews);
+            localStorage.setItem('lastReviewDate', today);
+        }
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDisciplines();
+            updateDisciplineSelect();
+            setupEventListeners();
+            updateDailyProgress();
+            initAutoBackup(); // Iniciar sistema de backup automático
+            
+            // Verificar tema salvo
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+                const icon = themeToggle.querySelector('i');
+                icon.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+            }
+        });
+        
+        // ==================================================================
+        // NOVA FUNCIONALIDADE: BACKUP AUTOMÁTICO LOCAL (ATUALIZADA)
+        // ==================================================================
+        
+        // Inicializar sistema de backup automático
+        function initAutoBackup() {
+            // Verificar se já existe registro de último backup
+            const lastBackup = localStorage.getItem('lastBackupDate');
+            
+            // Se for a primeira vez, registrar a data atual
+            if (!lastBackup) {
+                localStorage.setItem('lastBackupDate', new Date().toISOString());
+            }
+            
+            // Criar backup rotativo
+            localStorage.setItem('disciplines_backup', localStorage.getItem('disciplines'));
+            
+            // Atualizar informações na UI
+            updateBackupInfo();
+            
+            // Verificar periodicamente (a cada 6 horas)
+            setInterval(() => {
+                checkAutoBackup();
+                updateBackupInfo();
+            }, 6 * 60 * 60 * 1000); // 6 horas
+            
+            // Verificar na inicialização
+            checkAutoBackup();
+        }
+        
+        // Verificar se precisa fazer backup automático
+        function checkAutoBackup() {
+            if (disciplines.length === 0) return;
+            
+            const lastBackupDate = localStorage.getItem('lastBackupDate');
+            const today = new Date();
+            const lastBackup = new Date(lastBackupDate);
+            
+            // Calcular diferença em dias
+            const diffTime = today - lastBackup;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Se passaram 2 dias ou mais, realizar backup
+            if (diffDays >= 2) {
+                performAutoBackup();
+            }
+        }
+        
+        // Realizar backup automático
+        function performAutoBackup() {
+            try {
+                // Criar backup rotativo
+                localStorage.setItem('disciplines_backup', JSON.stringify(disciplines));
+                
+                // Atualizar data do último backup
+                localStorage.setItem('lastBackupDate', new Date().toISOString());
+                updateBackupInfo();
+                
+                // Notificação discreta
+                showToast('Backup automático realizado!');
+            } catch (error) {
+                console.error('Erro no backup automático:', error);
+            }
+        }
+        
+        // Atualizar informações de backup na UI
+        function updateBackupInfo() {
+            const lastBackupDate = localStorage.getItem('lastBackupDate');
+            const today = new Date();
+            const lastBackup = new Date(lastBackupDate);
+            
+            if (lastBackupDate) {
+                // Formatar data para exibição
+                const formattedDate = lastBackup.toLocaleDateString('pt-BR');
+                document.getElementById('lastBackupInfo').textContent = formattedDate;
+                
+                // Calcular data do próximo backup
+                const nextBackupDate = new Date(lastBackup);
+                nextBackupDate.setDate(lastBackup.getDate() + 2);
+                
+                // Calcular diferença em dias
+                const diffTime = nextBackupDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays > 0) {
+                    document.getElementById('nextBackupInfo').textContent = `${diffDays} dias`;
+                } else {
+                    document.getElementById('nextBackupInfo').textContent = "hoje";
+                }
+            } else {
+                document.getElementById('lastBackupInfo').textContent = "Nenhum backup realizado ainda";
+                document.getElementById('nextBackupInfo').textContent = "-";
+            }
+        }
+        
+        // ==================================================================
+        // FIM DA NOVA FUNCIONALIDADE
+        // ==================================================================
+        // FUNÇÃO PARA VERIFICAR SE HÁ REVISÕES PENDENTES
+        function hasPendingReviews() {
+            const today = getToday();
+            
+            for (const discipline of disciplines) {
+                if (!discipline.assuntos) continue;
+                
+                for (const topic of discipline.assuntos) {
+                    if (topic.suspended) continue;
+                    
+                    if (topic.nextReviewDate) {
+                        if (topic.nextReviewDate <= today) {
+                            return true;
+                        }
+                    }
+                    
+                    // Verificar se é método fixo e está há mais de 30 dias sem revisão
+                    if (topic.reviewMethod === 'fixed') {
+                        const lastReviewed = topic.lastReviewed;
+                        if (lastReviewed) {
+                            const diffTime = today - lastReviewed;
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            
+                            if (diffDays > 30) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        // Funções principais
+        function renderDisciplines() {
+            disciplineList.innerHTML = '';
+            
+            if (disciplines.length === 0) {
+                disciplineList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-book-open"></i>
+                        <h3>Nenhuma disciplina cadastrada</h3>
+                        <p>Adicione sua primeira disciplina para começar</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            disciplines.forEach((discipline, index) => {
+                const card = document.createElement('div');
+                card.className = 'discipline-card';
+                card.innerHTML = `
+                    <div class="discipline-card-header">
+                        <h3>${sanitizeHTML(discipline.name)}</h3>
+                        <button class="delete-btn" data-index="${index}" title="Remover disciplina">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <p>${discipline.assuntos ? discipline.assuntos.length : 0} assuntos</p>
+                    <p class="topics-count">${countTopicsForReview(discipline)} para revisão</p>
+                `;
+                card.addEventListener('click', (e) => {
+                    if (!e.target.closest('.delete-btn')) {
+                        showTopics(index);
+                    }
+                });
+                disciplineList.appendChild(card);
+            });
+            
+            document.querySelectorAll('.discipline-card .delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.index);
+                    showConfirmation(
+                        'Excluir Disciplina', 
+                        `Tem certeza que deseja excluir a disciplina "${disciplines[index].name}"? Todos os assuntos e dados associados serão excluídos.`,
+                        () => deleteDiscipline(index)
+                    );
+                });
+            });
+        }
+        
+        function showTopics(disciplineIndex) {
+            currentDisciplineIndex = disciplineIndex;
+            const discipline = disciplines[disciplineIndex];
+            
+            disciplineTitle.innerHTML = `<i class="fas fa-book"></i> ${sanitizeHTML(discipline.name)}`;
+            renderTopics();
+            showTab('topicsTab');
+        }
+        
+        function renderTopics() {
+            redTopics.innerHTML = '';
+            greenTopics.innerHTML = '';
+            yellowTopics.innerHTML = '';
+            
+            const discipline = disciplines[currentDisciplineIndex];
+            const today = getToday();
+            
+            if (!discipline.assuntos || discipline.assuntos.length === 0) {
+                redTopics.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>Nenhum assunto cadastrado</h3>
+                        <p>Adicione assuntos para esta disciplina</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            discipline.assuntos.forEach((topic, index) => {
+                const nextReviewDate = topic.nextReviewDate;
+                
+                // Determinar status com base nas datas
+                let status = 'future';
+                if (nextReviewDate) {
+                    if (nextReviewDate < today) {
+                        status = 'overdue';
+                    } else if (nextReviewDate === today) {
+                        status = 'today';
+                    }
+                }
+                
+                // Calcular prioridade para ordenação
+                const priority = calculatePriority(topic);
+                
+                const topicCard = document.createElement('div');
+                topicCard.className = 'topic-card';
+                
+                let suspendBtn = '';
+                if (topic.suspended) {
+                    suspendBtn = `<button class="btn-unsuspend" data-index="${index}"><i class="fas fa-play"></i> Retomar</button>`;
+                } else {
+                    suspendBtn = `<button class="btn-suspend" data-index="${index}"><i class="fas fa-pause"></i> Suspender</button>`;
+                }
+                
+                // Barra de força da memória
+                const memoryStrengthPercent = Math.round(topic.memoryStrength * 100);
+                const memoryStrengthColor = memoryStrengthPercent < 40 ? '#f44336' : 
+                                          memoryStrengthPercent < 70 ? '#ff9800' : '#4caf50';
+                
+                // Tag para assuntos adicionados automaticamente
+                const autoAddedTag = topic.autoAddedForReview ? 
+                    `<span class="auto-added-tag">Automático</span>` : '';
+                
+                // Mostrar método de revisão
+                const reviewMethodBadge = topic.reviewMethod === 'fixed' ? 
+                    `<span class="priority-badge priority-medium">Desempenho</span>` : 
+                    `<span class="priority-badge priority-low">SM-2</span>`;
+                
+                topicCard.innerHTML = `
+                    <div class="topic-card-header">
+                        <h4>${sanitizeHTML(topic.nome)} ${autoAddedTag} <span class="priority-badge">Prio: ${Math.round(priority)}</span></h4>
+                        <div>
+                            <button class="edit-topic-btn" data-index="${index}" title="Editar assunto">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-topic-btn" data-index="${index}" title="Remover assunto">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="material">${sanitizeHTML(topic.material || 'Sem material especificado')}</p>
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="value">${topic.questions || 0}</span>
+                            <span class="label">Questões</span>
+                        </div>
+                        <div class="stat">
+                            <span class="value" style="color: ${topic.correct > topic.incorrect ? '#27AE60' : '#C0392B'}">${topic.correct || 0}</span>
+                            <span class="label">Acertos</span>
+                        </div>
+                        <div class="stat">
+                            <span class="value">${topic.incorrect || 0}</span>
+                            <span class="label">Erros</span>
+                        </div>
+                    </div>
+                    <div class="memory-strength-bar">
+                        <div class="memory-strength-fill" style="width: ${memoryStrengthPercent}%; background-color: ${memoryStrengthColor};"></div>
+                    </div>
+                    <div class="review-details">
+                        <span><i class="fas fa-brain"></i> ${memoryStrengthPercent}%</span>
+                        <span><i class="fas fa-history"></i> ${topic.repetitions} revisões</span>
+                        <span><i class="fas fa-calendar-alt"></i> ${formatDate(topic.nextReviewDate) || 'Sem data'} ${status === 'overdue' ? '(Atrasado)' : status === 'today' ? '(Para hoje)' : ''}</span>
+                        ${reviewMethodBadge}
+                    </div>
+                    <div class="topic-actions">
+                        ${suspendBtn}
+                        <button class="btn-review" data-index="${index}">
+                            <i class="fas fa-edit"></i> Revisar
+                        </button>
+                    </div>
+                `;
+                
+                if (topic.suspended) {
+                    yellowTopics.appendChild(topicCard);
+                } else if (status === 'overdue' || status === 'today') {
+                    redTopics.appendChild(topicCard);
+                } else {
+                    greenTopics.appendChild(topicCard);
+                }
+            });
+            
+            // Ordenar por prioridade (mais altas primeiro)
+            const sortByPriority = (container) => {
+                const cards = Array.from(container.children);
+                cards.sort((a, b) => {
+                    const aPriority = parseInt(a.querySelector('.priority-badge').textContent.split(': ')[1]);
+                    const bPriority = parseInt(b.querySelector('.priority-badge').textContent.split(': ')[1]);
+                    return bPriority - aPriority;
+                });
+                
+                // Reinserir na ordem
+                container.innerHTML = '';
+                cards.forEach(card => container.appendChild(card));
+            };
+            
+            sortByPriority(redTopics);
+            sortByPriority(greenTopics);
+            sortByPriority(yellowTopics);
+            
+            // Event listeners
+            document.querySelectorAll('.btn-review').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    currentTopicIndex = parseInt(e.target.closest('.btn-review').dataset.index);
+                    openProgressModal();
+                });
+            });
+            
+            document.querySelectorAll('.btn-suspend').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const topicIndex = parseInt(btn.dataset.index);
+                    suspendTopic(topicIndex, true);
+                });
+            });
+            
+            document.querySelectorAll('.btn-unsuspend').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const topicIndex = parseInt(btn.dataset.index);
+                    suspendTopic(topicIndex, false);
+                });
+            });
+            
+            document.querySelectorAll('.delete-topic-btn').forEach(btn => {
+               btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const topicIndex = parseInt(btn.dataset.index);
+                    const topicName = disciplines[currentDisciplineIndex].assuntos[topicIndex].nome;
+                    showConfirmation(
+                        'Excluir Assunto', 
+                        `Tem certeza que deseja excluir o assunto "${topicName}"? Todos os dados associados serão excluídos.`,
+                        () => deleteTopic(topicIndex)
+                    );
+                });
+            });
+            
+            document.querySelectorAll('.edit-topic-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const topicIndex = parseInt(btn.dataset.index);
+                    const discipline = disciplines[currentDisciplineIndex];
+                    const topic = discipline.assuntos[topicIndex];
+                    
+                    document.getElementById('editTopicName').value = topic.nome;
+                    document.getElementById('editTopicMaterial').value = topic.material || '';
+                    document.getElementById('editTopicImportance').value = topic.importance || 3;
+                    document.getElementById('editReviewMethod').value = topic.reviewMethod || 'sm2';
+                    
+                    currentEditTopicIndex = topicIndex;
+                    document.getElementById('editTopicModal').style.display = 'flex';
+                });
+            });
+        }
+        
+        // Função para calcular prioridade
+        function calculatePriority(topic) {
+            const now = getToday();
+            const lastReviewedDate = topic.lastReviewed || 0;
+            const daysSinceReview = Math.floor((now - lastReviewedDate) / (1000 * 60 * 60 * 24));
+            
+            // Calcular a dificuldade média (quanto menor, mais difícil)
+            const avgDifficulty = topic.difficultyHistory.length > 0 ?
+                topic.difficultyHistory.reduce((a, b) => a + b, 0) / topic.difficultyHistory.length : 2;
+            const difficultyScore = (3 - avgDifficulty); // Inverter: dificuldade alta = prioridade alta
+            
+            // Calcular dias de atraso (se a data de revisão já passou)
+            const nextReviewDate = topic.nextReviewDate;
+            const daysOverdue = nextReviewDate ? Math.max(0, Math.floor((now - nextReviewDate) / (1000 * 60 * 60 * 24))) : 0;
+            
+            // Fórmula de prioridade (pesos ajustáveis)
+            const priority = (difficultyScore * 40) + (daysOverdue * 60) + (topic.importance * 20);
+            return priority;
+        }
+        
+        function suspendTopic(topicIndex, suspend) {
+            const discipline = disciplines[currentDisciplineIndex];
+            discipline.assuntos[topicIndex].suspended = suspend;
+            saveData();
+            renderTopics();
+            showToast(suspend ? 'Assunto suspenso com sucesso!' : 'Assunto retomado com sucesso!');
+        }
+        
+        function openProgressModal() {
+            const discipline = disciplines[currentDisciplineIndex];
+            const topic = discipline.assuntos[currentTopicIndex];
+            
+            document.getElementById('questionsInput').value = topic.questions || 0;
+            document.getElementById('correctInput').value = topic.correct || 0;
+            updateEstimatedTime();
+            
+            // Definir dificuldade padrão
+            currentDifficulty = 2;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.value) === currentDifficulty) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Atualizar a próxima data de revisão no modal
+            const nextReviewDate = topic.nextReviewDate ? formatDate(topic.nextReviewDate) : '--/--/----';
+            document.getElementById('nextReviewDate').textContent = nextReviewDate;
+            
+            progressModal.style.display = 'flex';
+        }
+        
+        function saveProgress() {
+            const questions = parseInt(document.getElementById('questionsInput').value);
+            const correct = parseInt(document.getElementById('correctInput').value);
+            
+            if (isNaN(questions) || isNaN(correct) || questions < correct) {
+                showToast('Por favor, insira valores válidos!');
+                return;
+            }
+            
+            const discipline = disciplines[currentDisciplineIndex];
+            const topic = discipline.assuntos[currentTopicIndex];
+            
+            // Atualizar contagens de questões
+            topic.questions = (topic.questions || 0) + questions;
+            topic.correct = (topic.correct || 0) + correct;
+            topic.incorrect = (topic.incorrect || 0) + (questions - correct);
+            
+            // Adicionar dificuldade ao histórico
+            topic.difficultyHistory.push(currentDifficulty);
+            
+            // Obter data atual
+            const today = getToday();
+            
+            // Verificar o método de revisão
+            if (topic.reviewMethod === 'fixed') {
+                // Lógica para revisão por desempenho
+                const accuracy = (correct / questions) * 100;
+                const interval = getPerformanceBasedInterval(accuracy);
+                topic.interval = interval;
+                topic.repetitions = (topic.repetitions || 0) + 1;
+            } else if (topic.reviewMethod === 'sm2') {
+                // Usar algoritmo SM-2 corretamente
+                const result = calculateNextReviewSM2(
+                    currentDifficulty, 
+                    topic.easeFactor || 2.5, 
+                    topic.interval || 1, 
+                    topic.repetitions || 0
+                );
+                
+                topic.easeFactor = result.newEF;
+                topic.interval = result.newInterval;
+                topic.repetitions = result.repetitions;
+            }
+            
+            // Atualizar datas
+            topic.lastReviewed = today;
+            
+            // Calcular próxima data de revisão
+            const nextReviewDate = new Date(today);
+            nextReviewDate.setDate(new Date(today).getDate() + topic.interval);
+            topic.nextReviewDate = nextReviewDate.getTime(); // Armazenar como timestamp
+            
+            // Calcular e atualizar força da memória
+            topic.memoryStrength = calculateMemoryStrength(topic);
+            
+            // Remover flag de revisão automática se existir
+            if (topic.autoAddedForReview) {
+                topic.autoAddedForReview = false;
+            }
+            
+            // Incrementar contador de revisões diárias
+            dailyCompletedReviews++;
+            localStorage.setItem('dailyCompletedReviews', dailyCompletedReviews);
+            localStorage.setItem('lastReviewDate', new Date().toISOString().split('T')[0]);
+            updateDailyProgress();
+            
+            // Salvar no localStorage
+            saveData();
+            
+            // Recarregar a lista de revisões se estivermos nela, caso contrário, recarregar os tópicos
+            const currentTab = document.querySelector('.tab-content.active').id;
+            if (currentTab === 'reviews') {
+                renderReviewList();
+            } else {
+                renderTopics();
+            }
+            
+            showToast('Progresso registrado com sucesso!');
+            progressModal.style.display = 'none';
+        }
+        
+        function updateEstimatedTime() {
+            const questions = parseInt(document.getElementById('questionsInput').value) || 0;
+            const correct = parseInt(document.getElementById('correctInput').value) || 0;
+            
+            if (questions === 0) {
+                document.getElementById('estimatedTime').textContent = '20 min';
+                return;
+            }
+            
+            const accuracy = correct / questions;
+            const time = Math.pow(1.8, (1 - accuracy)) * 20;
+            const roundedTime = Math.min(Math.max(Math.round(time), 20), 50);
+            
+            document.getElementById('estimatedTime').textContent = `${roundedTime} min`;
+        }
+        
+        function updateDailyProgress() {
+            const progressPercentage = Math.min(100, (dailyCompletedReviews / dailyReviewGoal) * 100);
+            dailyProgress.style.width = `${progressPercentage}%`;
+            progressText.textContent = `${dailyCompletedReviews}/${dailyReviewGoal} revisões completadas`;
+        }
+        
+        function addDiscipline() {
+            const name = sanitizeHTML(document.getElementById('disciplineName').value.trim());
+            
+            if (!name) {
+                showToast('Por favor, insira um nome para a disciplina!');
+                return;
+            }
+            
+            disciplines.push({
+                name: name,
+                assuntos: []
+            });
+            
+            saveData();
+            renderDisciplines();
+            updateDisciplineSelect();
+            document.getElementById('disciplineName').value = '';
+            showToast('Disciplina adicionada com sucesso!');
+            showTab('disciplines');
+        }
+        
+        function addTopic() {
+            const disciplineIndex = document.getElementById('topicDiscipline').value;
+            const name = sanitizeHTML(document.getElementById('topicName').value.trim());
+            const material = sanitizeHTML(document.getElementById('topicMaterial').value.trim());
+            const importance = parseInt(document.getElementById('topicImportance').value) || 3;
+            const reviewMethod = document.getElementById('topicReviewMethod').value;
+            
+            if (!disciplineIndex) {
+                showToast('Por favor, selecione uma disciplina!');
+                return;
+            }
+            
+            if (!name) {
+                showToast('Por favor, insira um nome para o assunto!');
+                return;
+            }
+            
+            // Criar objeto do tópico
+            const newTopic = {
+                nome: name,
+                material: material,
+                importance: importance,
+                reviewMethod: reviewMethod,
+                questions: 0,
+                correct: 0,
+                incorrect: 0,
+                repetitions: 0,
+                easeFactor: 2.5,
+                interval: 1,
+                nextReviewDate: null, // Inicializado como null
+                lastReviewed: null,
+                difficultyHistory: [],
+                memoryStrength: 0.7,
+                suspended: false,
+                autoAddedForReview: false
+            };
+            
+            // Verificar se deve adicionar automaticamente à fila de revisão
+            if (!hasPendingReviews()) {
+                // Definir data de revisão para hoje
+                const today = getToday();
+                newTopic.nextReviewDate = today;
+                newTopic.autoAddedForReview = true;
+                
+                showToast('Novo assunto adicionado automaticamente à fila de revisão!');
+            }
+            
+            // Adicionar o tópico à disciplina
+            disciplines[disciplineIndex].assuntos.push(newTopic);
+            
+            saveData();
+            renderDisciplines();
+            updateDisciplineSelect();
+            document.getElementById('topicName').value = '';
+            document.getElementById('topicMaterial').value = '';
+            document.getElementById('topicImportance').value = '3';
+            showToast('Assunto adicionado com sucesso!');
+            showTab('disciplines');
+        }
+        
+        function saveEditedTopic() {
+            const name = sanitizeHTML(document.getElementById('editTopicName').value.trim());
+            const material = sanitizeHTML(document.getElementById('editTopicMaterial').value.trim());
+            const importance = parseInt(document.getElementById('editTopicImportance').value) || 3;
+            const reviewMethod = document.getElementById('editReviewMethod').value;
+            
+            if (!name) {
+                showToast('Por favor, insira um nome para o assunto!');
+                return;
+            }
+            
+            const discipline = disciplines[currentDisciplineIndex];
+            const topic = discipline.assuntos[currentEditTopicIndex];
+            
+            topic.nome = name;
+            topic.material = material;
+            topic.importance = importance;
+            topic.reviewMethod = reviewMethod;
+            
+            saveData();
+            renderTopics();
+            document.getElementById('editTopicModal').style.display = 'none';
+            showToast('Assunto atualizado com sucesso!');
+        }
+        
+        function deleteDiscipline(index) {
+            disciplines.splice(index, 1);
+            saveData();
+            renderDisciplines();
+            updateDisciplineSelect();
+            showToast('Disciplina removida com sucesso!');
+            confirmationModal.style.display = 'none';
+        }
+        
+        function deleteTopic(topicIndex) {
+            const discipline = disciplines[currentDisciplineIndex];
+            discipline.assuntos.splice(topicIndex, 1);
+            saveData();
+            renderTopics();
+            showToast('Assunto removido com sucesso!');
+            confirmationModal.style.display = 'none';
+        }
+        
+        function updateDisciplineSelect() {
+            const select = document.getElementById('topicDiscipline');
+            select.innerHTML = '<option value="">Selecione uma disciplina</option>';
+            
+            disciplines.forEach((discipline, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = discipline.name;
+                select.appendChild(option);
+            });
+        }
+        
+        function countTopicsForReview(discipline) {
+            if (!discipline.assuntos || discipline.assuntos.length === 0) return 0;
+            
+            const today = getToday();
+            let count = 0;
+            
+            discipline.assuntos.forEach(topic => {
+                if (topic.suspended) return;
+                
+                if (topic.nextReviewDate && topic.nextReviewDate <= today) {
+                    count++;
+                }
+                
+                // Verificar método de revisão por frequência fixa
+                if (topic.reviewMethod === 'fixed' && !topic.suspended) {
+                    const lastReviewed = topic.lastReviewed;
+                    if (lastReviewed) {
+                        const diffTime = today - lastReviewed;
+                        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        if (diffDays > 30) {
+                            count++;
+                        }
+                    }
+                }
+            });
+            
+            return count;
+        }
+        
+        function renderReviewList() {
+            const reviewList = document.getElementById('reviewList');
+            const autoAddedTopics = document.getElementById('autoAddedTopics');
+            reviewList.innerHTML = '';
+            autoAddedTopics.innerHTML = '';
+            
+            const today = getToday();
+            let hasReviews = false;
+            
+            // Coletar todos os assuntos pendentes e calcular prioridade
+            let pendingTopics = [];
+            let autoAddedPendingTopics = [];
+            
+            disciplines.forEach(discipline => {
+                if (!discipline.assuntos) return;
+                
+                discipline.assuntos.forEach(topic => {
+                    if (topic.suspended) return;
+                    
+                    const isForTodayOrOverdue = topic.nextReviewDate && topic.nextReviewDate <= today;
+                    
+                    // Critério 1: Revisão programada para hoje/atrasada
+                    if (isForTodayOrOverdue) {
+                        const priority = topic.autoAddedForReview ? 10 : calculatePriority(topic);
+                        
+                        const topicData = {
+                            discipline,
+                            topic,
+                            priority
+                        };
+                        
+                        if (topic.autoAddedForReview) {
+                            autoAddedPendingTopics.push(topicData);
+                        } else {
+                            pendingTopics.push(topicData);
+                        }
+                    }
+                    
+                    // Critério 2: Revisão por frequência fixa (mais de 30 dias sem revisão)
+                    if (topic.reviewMethod === 'fixed') {
+                        const lastReviewed = topic.lastReviewed;
+                        if (lastReviewed) {
+                            const diffTime = today - lastReviewed;
+                            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                            
+                            if (diffDays > 30) {
+                                // Verificar se já não foi adicionado pelo critério 1
+                                const alreadyAdded = [...pendingTopics, ...autoAddedPendingTopics].some(item => 
+                                    item.topic === topic
+                                );
+                                
+                                if (!alreadyAdded) {
+                                    autoAddedPendingTopics.push({
+                                        discipline,
+                                        topic,
+                                        priority: 5, // Prioridade baixa
+                                        fixedReview: true
+                                    });
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+            
+            // Ordenar por prioridade (maior primeiro)
+            pendingTopics.sort((a, b) => b.priority - a.priority);
+            autoAddedPendingTopics.sort((a, b) => b.priority - a.priority);
+            
+            // Limitar a meta diária de assuntos
+            const sessionTopics = pendingTopics.slice(0, dailyReviewGoal);
+            
+            // Calcular tempo estimado para sessão
+            const sessionTime = sessionTopics.reduce((sum, item) => {
+                return sum + (2.5 * (1 - item.topic.memoryStrength) * item.topic.importance);
+            }, 0);
+            document.getElementById('sessionTimeEstimate').textContent = 
+                `${Math.round(sessionTime)} minutos`;
+            
+            // Renderizar tópicos normais
+            if (sessionTopics.length === 0 && autoAddedPendingTopics.length === 0) {
+                reviewList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Nenhuma revisão pendente</h3>
+                        <p>Parabéns! Você está em dia com suas revisões.</p>
+                    </div>
+                `;
+            } else {
+                sessionTopics.forEach(item => {
+                    const { discipline, topic } = item;
+                    const isOverdue = topic.nextReviewDate < today;
+                    const memoryStrengthPercent = Math.round(topic.memoryStrength * 100);
+                    
+                    const topicCard = document.createElement('div');
+                    topicCard.className = 'topic-card review-card';
+                    topicCard.innerHTML = `
+                        <h4>${sanitizeHTML(discipline.name)} - ${sanitizeHTML(topic.nome)} <span class="priority-badge">Prio: ${Math.round(item.priority)}</span></h4>
+                        <p class="material">${sanitizeHTML(topic.material || 'Sem material especificado')}</p>
+                        <div class="stats">
+                            <div class="stat">
+                                <span class="value">${topic.questions || 0}</span>
+                                <span class="label">Questões</span>
+                            </div>
+                            <div class="stat">
+                                <span class="value" style="color: ${topic.correct > topic.incorrect ? '#27AE60' : '#C0392B'}">${topic.correct || 0}</span>
+                                <span class="label">Acertos</span>
+                            </div>
+                            <div class="stat">
+                                <span class="value">${topic.incorrect || 0}</span>
+                                <span class="label">Erros</span>
+                            </div>
+                        </div>
+                        <div class="memory-strength-bar">
+                            <div class="memory-strength-fill" style="width: ${memoryStrengthPercent}%;"></div>
+                        </div>
+                        <div class="review-details">
+                            <span><i class="fas fa-brain"></i> ${memoryStrengthPercent}%</span>
+                            <span><i class="fas fa-history"></i> ${topic.repetitions} revisões</span>
+                            <span><i class="fas fa-calendar-alt"></i> ${formatDate(topic.nextReviewDate)} ${isOverdue ? '(Atrasado)' : '(Para hoje)'}</span>
+                        </div>
+                        <button class="btn-review" data-discipline="${disciplines.indexOf(discipline)}" data-topic="${discipline.assuntos.indexOf(topic)}">
+                            <i class="fas fa-edit"></i> Revisar
+                        </button>
+                    `;
+                    
+                    reviewList.appendChild(topicCard);
+                });
+            }
+            
+            // Renderizar tópicos adicionados automaticamente
+            if (autoAddedPendingTopics.length > 0) {
+                autoAddedPendingTopics.forEach(item => {
+                    const { discipline, topic } = item;
+                    const isOverdue = topic.nextReviewDate < today;
+                    const memoryStrengthPercent = Math.round(topic.memoryStrength * 100);
+                    
+                    const topicCard = document.createElement('div');
+                    topicCard.className = 'topic-card';
+                    topicCard.innerHTML = `
+                        <h4>${sanitizeHTML(discipline.name)} - ${sanitizeHTML(topic.nome)} 
+                            <span class="auto-added-tag">Automático</span>
+                            <span class="priority-badge priority-low">Baixa Prioridade</span>
+                        </h4>
+                        <p class="material">${sanitizeHTML(topic.material || 'Sem material especificado')}</p>
+                        <div class="stats">
+                            <div class="stat">
+                                <span class="value">${topic.questions || 0}</span>
+                                <span class="label">Questões</span>
+                            </div>
+                        </div>
+                        <div class="memory-strength-bar">
+                            <div class="memory-strength-fill" style="width: ${memoryStrengthPercent}%;"></div>
+                        </div>
+                        <div class="review-details">
+                            <span><i class="fas fa-brain"></i> ${memoryStrengthPercent}%</span>
+                            <span><i class="fas fa-calendar-alt"></i> ${formatDate(topic.nextReviewDate)} ${isOverdue ? '(Atrasado)' : '(Para hoje)'}</span>
+                        </div>
+                        <button class="btn-review" data-discipline="${disciplines.indexOf(discipline)}" data-topic="${discipline.assuntos.indexOf(topic)}">
+                            <i class="fas fa-edit"></i> Revisar
+                        </button>
+                    `;
+                    
+                    autoAddedTopics.appendChild(topicCard);
+                });
+            } else if (autoAddedPendingTopics.length === 0 && sessionTopics.length > 0) {
+                autoAddedTopics.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Nenhuma revisão automática pendente</h3>
+                        <p>Novos assuntos serão adicionados aqui quando não houver revisões urgentes</p>
+                    </div>
+                `;
+            }
+            
+            // Event listeners para os botões de revisão
+            document.querySelectorAll('.btn-review').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const disciplineIndex = parseInt(btn.dataset.discipline);
+                    const topicIndex = parseInt(btn.dataset.topic);
+                    currentDisciplineIndex = disciplineIndex;
+                    currentTopicIndex = topicIndex;
+                    openProgressModal();
+                });
+            });
+        }
+        
+        // Dashboard Functions
+        function renderDashboard() {
+            const stats = calculateStatistics();
+            
+            // Atualizar contadores
+            document.getElementById('totalQuestions').textContent = stats.totalQuestions;
+            document.getElementById('totalCorrect').textContent = stats.totalCorrect;
+            document.getElementById('totalIncorrect').textContent = stats.totalIncorrect;
+            document.getElementById('pendingReviews').textContent = stats.pendingReviews;
+            document.getElementById('completedReviews').textContent = stats.completedReviews;
+            document.getElementById('overallAccuracy').textContent = stats.overallAccuracy + '%';
+            
+            // Preencher filtro de disciplinas
+            disciplineFilter.innerHTML = '<option value="">Todas as disciplinas</option>';
+            disciplines.forEach(discipline => {
+                const option = document.createElement('option');
+                option.value = discipline.name;
+                option.textContent = discipline.name;
+                disciplineFilter.appendChild(option);
+            });
+            
+            // Renderizar gráficos
+            renderPerformanceChart('accuracy', stats);
+            renderDistributionChart(stats);
+            
+            // Renderizar tabela
+            renderStatsTable(stats.subjects);
+        }
+        
+        function calculateStatistics() {
+            let totalQuestions = 0;
+            let totalCorrect = 0;
+            let totalIncorrect = 0;
+            let pendingReviews = 0;
+            let completedReviews = 0;
+            const subjects = [];
+            const disciplineStats = {};
+            const today = getToday();
+            
+            disciplines.forEach(discipline => {
+                if (!discipline.assuntos) return;
+                
+                disciplineStats[discipline.name] = {
+                    questions: 0,
+                    correct: 0,
+                    incorrect: 0,
+                    accuracy: 0,
+                    pendingReviews: 0,
+                    completedReviews: 0,
+                    avgMemoryStrength: 0
+                };
+                
+                let subjectCount = 0;
+                
+                discipline.assuntos.forEach(topic => {
+                    // Estatísticas por assunto
+                    const subjectStats = {
+                        discipline: discipline.name,
+                        topic: topic.nome,
+                        questions: topic.questions || 0,
+                        correct: topic.correct || 0,
+                        incorrect: topic.incorrect || 0,
+                        accuracy: 0,
+                        easeFactor: topic.easeFactor || 2.5,
+                        interval: topic.interval || 1,
+                        repetitions: topic.repetitions || 0,
+                        memoryStrength: topic.memoryStrength || 0.7,
+                        lastDifficulty: topic.difficultyHistory && topic.difficultyHistory.length > 0 
+                            ? topic.difficultyHistory[topic.difficultyHistory.length - 1] 
+                            : null,
+                        reviewMethod: topic.reviewMethod || 'sm2'
+                    };
+                    
+                    if (subjectStats.questions > 0) {
+                        subjectStats.accuracy = Math.round((subjectStats.correct / subjectStats.questions) * 100);
+                    }
+                    
+                    subjects.push(subjectStats);
+                    
+                    // Totais gerais
+                    totalQuestions += subjectStats.questions;
+                    totalCorrect += subjectStats.correct;
+                    totalIncorrect += subjectStats.incorrect;
+                    
+                    // Revisões pendentes e feitas
+                    if (topic.nextReviewDate && !topic.suspended) {
+                        if (topic.nextReviewDate <= today) {
+                            pendingReviews++;
+                            disciplineStats[discipline.name].pendingReviews++;
+                        } else {
+                            completedReviews++;
+                            disciplineStats[discipline.name].completedReviews++;
+                        }
+                    }
+                    
+                    // Estatísticas por disciplina
+                    disciplineStats[discipline.name].questions += subjectStats.questions;
+                    disciplineStats[discipline.name].correct += subjectStats.correct;
+                    disciplineStats[discipline.name].incorrect += subjectStats.incorrect;
+                    disciplineStats[discipline.name].avgMemoryStrength += subjectStats.memoryStrength;
+                    subjectCount++;
+                });
+                
+                // Calcular média de força da memória por disciplina
+                if (subjectCount > 0) {
+                    disciplineStats[discipline.name].avgMemoryStrength = 
+                        disciplineStats[discipline.name].avgMemoryStrength / subjectCount;
+                }
+            });
+            
+            // Calcular acurácia por disciplina
+            Object.keys(disciplineStats).forEach(discipline => {
+                const stats = disciplineStats[discipline];
+                if (stats.questions > 0) {
+                    stats.accuracy = Math.round((stats.correct / stats.questions) * 100);
+                }
+            });
+            
+            // Calcular acurácia geral
+            let overallAccuracy = 0;
+            if (totalQuestions > 0) {
+                overallAccuracy = Math.round((totalCorrect / totalQuestions) * 100);
+            }
+            
+            return {
+                totalQuestions,
+                totalCorrect,
+                totalIncorrect,
+                pendingReviews,
+                completedReviews,
+                overallAccuracy,
+                subjects,
+                disciplineStats
+            };
+        }
+        
+        function renderPerformanceChart(type, stats) {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            // Destruir gráfico anterior se existir
+            if (performanceChart) {
+                performanceChart.destroy();
+            }
+            
+            const disciplines = Object.keys(stats.disciplineStats);
+            const data = [];
+            const backgroundColors = [];
+            const borderColors = [];
+            const labels = [];
+            
+            // Gerar cores aleatórias
+            const getRandomColor = () => {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            };
+            
+            switch(type) {
+                case 'accuracy':
+                    disciplines.forEach(discipline => {
+                        const accuracy = stats.disciplineStats[discipline].accuracy;
+                        data.push(accuracy);
+                        labels.push(`${discipline} (${accuracy}%)`);
+                        const color = getRandomColor();
+                        backgroundColors.push(color + '80');
+                        borderColors.push(color);
+                    });
+                    
+                    performanceChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Acurácia (%)',
+                                data: data,
+                                backgroundColor: backgroundColors,
+                                borderColor: borderColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Acurácia por Disciplina',
+                                    color: '#2C3E50',
+                                    font: {
+                                        size: 16
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: {
+                                        color: '#7F8C8D',
+                                        callback: function(value) {
+                                            return value + '%';
+                                        }
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: '#7F8C8D'
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    break;
+                    
+                case 'questions':
+                    disciplines.forEach(discipline => {
+                        const questions = stats.disciplineStats[discipline].questions;
+                        data.push(questions);
+                        labels.push(discipline);
+                        const color = getRandomColor();
+                        backgroundColors.push(color + '80');
+                        borderColors.push(color);
+                    });
+                    
+                    performanceChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Questões Respondidas',
+                                data: data,
+                                backgroundColor: backgroundColors,
+                                borderColor: borderColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Questões por Disciplina',
+                                    color: '#2C3E50',
+                                    font: {
+                                        size: 16
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        color: '#7F8C8D'
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: '#7F8C8D'
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    break;
+                    
+                case 'reviews':
+                    disciplines.forEach(discipline => {
+                        const pending = stats.disciplineStats[discipline].pendingReviews;
+                        const completed = stats.disciplineStats[discipline].completedReviews;
+                        data.push(pending, completed);
+                        labels.push(discipline);
+                    });
+                    
+                    performanceChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'Revisões Pendentes',
+                                    data: disciplines.map(d => stats.disciplineStats[d].pendingReviews),
+                                    backgroundColor: 'rgba(255, 152, 0, 0.8)',
+                                    borderColor: 'rgba(255, 152, 0, 1)',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Revisões Concluídas',
+                                    data: disciplines.map(d => stats.disciplineStats[d].completedReviews),
+                                    backgroundColor: 'rgba(76, 175, 80, 0.8)',
+                                    borderColor: 'rgba(76, 175, 80, 1)',
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Revisões por Disciplina',
+                                    color: '#2C3E50',
+                                    font: {
+                                        size: 16
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        color: '#7F8C8D'
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: '#7F8C8D'
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    break;
+            }
+        }
+        
+        function renderDistributionChart(stats) {
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            
+            // Destruir gráfico anterior se existir
+            if (distributionChart) {
+                distributionChart.destroy();
+            }
+            
+            const disciplines = Object.keys(stats.disciplineStats);
+            const data = disciplines.map(d => stats.disciplineStats[d].questions);
+            
+            // Gerar cores para o gráfico
+            const backgroundColors = [];
+            for (let i = 0; i < disciplines.length; i++) {
+                const hue = (i * 360) / disciplines.length;
+                backgroundColors.push(`hsl(${hue}, 70%, 60%)`);
+            }
+            
+            distributionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: disciplines,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#2C3E50'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Distribuição de Estudo',
+                            color: '#2C3E50',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} questões (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function renderStatsTable(subjects) {
+            statsTableBody.innerHTML = '';
+            statsData = subjects; // Armazenar para filtragem
+            
+            // Ordenar os assuntos
+            subjects.sort((a, b) => {
+                let result = 0;
+                
+                if (sortColumn === 'discipline') {
+                    result = a.discipline.localeCompare(b.discipline);
+                } else if (sortColumn === 'topic') {
+                    result = a.topic.localeCompare(b.topic);
+                } else if (sortColumn === 'questions') {
+                    result = a.questions - b.questions;
+                } else if (sortColumn === 'correct') {
+                    result = a.correct - b.correct;
+                } else if (sortColumn === 'incorrect') {
+                    result = a.incorrect - b.incorrect;
+                } else if (sortColumn === 'accuracy') {
+                    result = a.accuracy - b.accuracy;
+                } else if (sortColumn === 'easeFactor') {
+                    result = a.easeFactor - b.easeFactor;
+                } else if (sortColumn === 'interval') {
+                    result = a.interval - b.interval;
+                }
+                
+                return sortDirection === 'asc' ? result : -result;
+            });
+            
+            // Adicionar linhas à tabela
+            subjects.forEach(subject => {
+                const row = document.createElement('tr');
+                
+                // Determinar classe de acurácia
+                let accuracyClass = '';
+                if (subject.accuracy >= 80) accuracyClass = 'accuracy-high';
+                else if (subject.accuracy >= 60) accuracyClass = 'accuracy-medium';
+                else accuracyClass = 'accuracy-low';
+                
+                row.innerHTML = `
+                    <td>${subject.discipline}</td>
+                    <td>${subject.topic}</td>
+                    <td>${subject.questions}</td>
+                    <td>${subject.correct}</td>
+                    <td>${subject.incorrect}</td>
+                    <td class="accuracy-cell ${accuracyClass}">${subject.accuracy}%</td>
+                    <td>${subject.easeFactor.toFixed(2)}</td>
+                    <td>${subject.interval}</td>
+                `;
+                
+                statsTableBody.appendChild(row);
+            });
+        }
+        
+        function sortTable(column) {
+            // Se clicar na mesma coluna, inverter a direção
+            if (column === sortColumn) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            
+            // Re-renderizar a tabela
+            const stats = calculateStatistics();
+            renderStatsTable(stats.subjects);
+        }
+        
+        function filterTable() {
+            const disciplineValue = disciplineFilter.value;
+            const accuracyValue = accuracyFilter.value;
+            const searchTerm = tableSearch.value.toLowerCase();
+            
+            const filtered = statsData.filter(subject => {
+                // Filtro por disciplina
+                if (disciplineValue && subject.discipline !== disciplineValue) {
+                    return false;
+                }
+                
+                // Filtro por acurácia
+                if (accuracyValue) {
+                    switch(accuracyValue) {
+                        case '80':
+                            if (subject.accuracy < 80) return false;
+                            break;
+                        case '60':
+                            if (subject.accuracy < 60) return false;
+                            break;
+                        case '50':
+                            if (subject.accuracy < 50) return false;
+                            break;
+                        case 'below50':
+                            if (subject.accuracy >= 50) return false;
+                            break;
+                        case 'below40':
+                            if (subject.accuracy >= 40) return false;
+                            break;
+                        case 'below20':
+                            if (subject.accuracy >= 20) return false;
+                            break;
+                    }
+                }
+                
+                // Filtro por busca
+                if (searchTerm && 
+                    !subject.discipline.toLowerCase().includes(searchTerm) && 
+                    !subject.topic.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            renderStatsTable(filtered);
+        }
+        
+        // Funções para o Mapa de Retenção
+        function renderRetentionMap() {
+            const stats = calculateStatistics();
+            
+            // Renderizar gráfico
+            renderRetentionChart(stats);
+            
+            // Renderizar tabela
+            renderRetentionTable(stats.subjects);
+        }
+        
+        function renderRetentionChart(stats) {
+            const ctx = document.getElementById('retentionChart').getContext('2d');
+            
+            // Destruir gráfico anterior se existir
+            if (retentionChart) {
+                retentionChart.destroy();
+            }
+            
+            // Filtrar assuntos conforme seleção
+            let filteredSubjects = stats.subjects;
+            const filterValue = retentionFilter.value;
+            
+            if (filterValue === 'critical') {
+                filteredSubjects = stats.subjects.filter(s => s.memoryStrength < 0.4);
+            } else if (filterValue === 'attention') {
+                filteredSubjects = stats.subjects.filter(s => s.memoryStrength >= 0.4 && s.memoryStrength < 0.7);
+            } else if (filterValue === 'consolidated') {
+                filteredSubjects = stats.subjects.filter(s => s.memoryStrength >= 0.7);
+            }
+            
+            // Ordenar por força da memória (mais baixos primeiro)
+            filteredSubjects.sort((a, b) => a.memoryStrength - b.memoryStrength);
+            
+            const labels = filteredSubjects.map(s => `${s.discipline} - ${s.topic}`);
+            const data = filteredSubjects.map(s => Math.round(s.memoryStrength * 100));
+            const backgroundColors = filteredSubjects.map(s => 
+                s.memoryStrength < 0.4 ? 'rgba(244, 67, 54, 0.7)' : 
+                s.memoryStrength < 0.7 ? 'rgba(255, 152, 0, 0.7)' : 'rgba(76, 175, 80, 0.7)'
+            );
+            
+            retentionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Força da Memória (%)',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Força da Memória por Assunto',
+                            color: '#2C3E50',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                color: '#7F8C8D',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#7F8C8D'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function getDifficultyText(value) {
+            if (value === 0) return 'Não lembrei';
+            if (value === 1) return 'Difícil';
+            if (value === 2) return 'Bom';
+            if (value === 3) return 'Fácil';
+            return '-';
+        }
+        
+        function renderRetentionTable(subjects) {
+            retentionTableBody.innerHTML = '';
+            
+            // Filtrar assuntos conforme seleção
+            let filteredSubjects = subjects;
+            const filterValue = retentionFilter.value;
+            
+            if (filterValue === 'critical') {
+                filteredSubjects = subjects.filter(s => s.memoryStrength < 0.4);
+            } else if (filterValue === 'attention') {
+                filteredSubjects = subjects.filter(s => s.memoryStrength >= 0.4 && s.memoryStrength < 0.7);
+            } else if (filterValue === 'consolidated') {
+                filteredSubjects = subjects.filter(s => s.memoryStrength >= 0.7);
+            }
+            
+            // Ordenar por força da memória (mais baixos primeiro)
+            filteredSubjects.sort((a, b) => a.memoryStrength - b.memoryStrength);
+            
+            filteredSubjects.forEach(subject => {
+                const row = document.createElement('tr');
+                
+                // Determinar status
+                let status = '';
+                let statusColor = '';
+                if (subject.memoryStrength < 0.4) {
+                    status = 'Crítico';
+                    statusColor = '#f44336';
+                } else if (subject.memoryStrength < 0.7) {
+                    status = 'Atenção';
+                    statusColor = '#ff9800';
+                } else {
+                    status = 'Consolidado';
+                    statusColor = '#4caf50';
+                }
+                
+                row.innerHTML = `
+                    <td>${subject.discipline}</td>
+                    <td>${subject.topic}</td>
+                    <td>${Math.round(subject.memoryStrength * 100)}%</td>
+                    <td>${subject.interval} dias</td>
+                    <td>${getDifficultyText(subject.lastDifficulty)}</td>
+                    <td style="color: ${statusColor}">${status}</td>
+                `;
+                
+                retentionTableBody.appendChild(row);
+            });
+        }
+        
+        function exportData() {
+            const data = JSON.stringify(disciplines);
+            const blob = new Blob([data], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `study-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('Dados exportados com sucesso!');
+        }
+        
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                
+                reader.onload = event => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        // VALIDAÇÃO DE DADOS
+                        if (!isValidData(data)) {
+                            throw new Error("Estrutura de dados inválida");
+                        }
+                        
+                        showConfirmation(
+                            'Importar Dados', 
+                            'Isso substituirá todos os seus dados atuais. Deseja continuar?',
+                            () => {
+                                disciplines = migrateLegacyData(data);
+                                saveData();
+                                renderDisciplines();
+                                updateDisciplineSelect();
+                                renderReviewList();
+                                showToast('Dados importados com sucesso!');
+                            }
+                        );
+                    } catch (error) {
+                        showToast(`Erro na importação: ${error.message}`);
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+        
+        function showConfirmation(title, message, callback) {
+            confirmationTitle.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${title}`;
+            confirmationMessage.textContent = message;
+            confirmBtn.onclick = callback;
+            confirmationModal.style.display = 'flex';
+        }
+        
+        // Função para alternar tema
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Atualizar ícone
+            const icon = themeToggle.querySelector('i');
+            icon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+            
+            showToast(`Tema alterado para ${newTheme === 'dark' ? 'escuro' : 'claro'}`);
+        }
+        
+        // Função para salvar dados de forma segura
+        function saveData() {
+            // Criar backup antes de salvar
+            localStorage.setItem('disciplines_backup', localStorage.getItem('disciplines'));
+            
+            // Salvar dados atuais
+            localStorage.setItem('disciplines', JSON.stringify(disciplines));
+        }
+        
+        // Funções principais
+        function showTab(tabId) {
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            if (tabId === 'reviews') {
+                renderReviewList();
+            } else if (tabId === 'dashboard') {
+                renderDashboard();
+            } else if (tabId === 'retention-map') {
+                renderRetentionMap();
+            }
+        }
+        
+        function showToast(message) {
+            toast.textContent = message;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        
+        function setupEventListeners() {
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    showTab(btn.dataset.tab);
+                });
+            });
+            
+            backToDisciplinesBtn.addEventListener('click', () => {
+                showTab('disciplines');
+            });
+            
+            document.getElementById('addDisciplineBtn').addEventListener('click', addDiscipline);
+            document.getElementById('addTopicBtn').addEventListener('click', addTopic);
+            document.getElementById('saveEditTopicBtn').addEventListener('click', saveEditedTopic);
+            
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    progressModal.style.display = 'none';
+                    confirmationModal.style.display = 'none';
+                    document.getElementById('goalConfigModal').style.display = 'none';
+                    document.getElementById('editTopicModal').style.display = 'none';
+                });
+            });
+            
+            cancelBtn.addEventListener('click', () => {
+                confirmationModal.style.display = 'none';
+            });
+            
+            document.getElementById('saveProgressBtn').addEventListener('click', saveProgress);
+            document.getElementById('questionsInput').addEventListener('input', updateEstimatedTime);
+            document.getElementById('correctInput').addEventListener('input', updateEstimatedTime);
+            
+            window.addEventListener('click', (e) => {
+                if (e.target === progressModal) {
+                    progressModal.style.display = 'none';
+                }
+                if (e.target === confirmationModal) {
+                    confirmationModal.style.display = 'none';
+                }
+                if (e.target === document.getElementById('goalConfigModal')) {
+                    document.getElementById('goalConfigModal').style.display = 'none';
+                }
+                if (e.target === document.getElementById('editTopicModal')) {
+                    document.getElementById('editTopicModal').style.display = 'none';
+                }
+            });
+            
+            exportBtn.addEventListener('click', exportData);
+            importBtn.addEventListener('click', importData);
+            
+            // Eventos para botões de dificuldade
+            difficultyBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    difficultyBtns.forEach(b => {
+                        b.classList.remove('active');
+                        b.classList.remove('pulse');
+                    });
+                    
+                    btn.classList.add('active');
+                    btn.classList.add('pulse');
+                    
+                    setTimeout(() => {
+                        btn.classList.remove('pulse');
+                    }, 500);
+                    
+                    currentDifficulty = parseInt(btn.dataset.value);
+                    
+                    // Feedback de confirmação
+                    const difficultyText = btn.textContent.trim();
+                    showToast(`Dificuldade definida como: ${difficultyText}`);
+                });
+            });
+            
+            // Eventos para filtros do dashboard
+            document.querySelectorAll('.chart-filters .btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.chart-filters .btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+                    const stats = calculateStatistics();
+                    renderPerformanceChart(btn.dataset.chart, stats);
+                });
+            });
+            
+            // Eventos para ordenação da tabela
+            document.querySelectorAll('.stats-table th').forEach(th => {
+                th.addEventListener('click', () => {
+                    sortTable(th.dataset.sort);
+                });
+            });
+            
+            // Eventos para filtros da tabela
+            disciplineFilter.addEventListener('change', filterTable);
+            accuracyFilter.addEventListener('change', filterTable);
+            tableSearch.addEventListener('input', filterTable);
+            
+            // Eventos para o mapa de retenção
+            retentionFilter.addEventListener('change', renderRetentionMap);
+            
+            // Eventos para configuração della diária
+            document.getElementById('reviewGoalConfig').addEventListener('click', () => {
+                document.getElementById('dailyGoalInput').value = dailyReviewGoal;
+                document.getElementById('goalConfigModal').style.display = 'flex';
+            });
+            
+            document.getElementById('saveGoalBtn').addEventListener('click', () => {
+                const newGoal = parseInt(document.getElementById('dailyGoalInput').value);
+                if (newGoal > 0) {
+                    dailyReviewGoal = newGoal;
+                    localStorage.setItem('dailyReviewGoal', dailyReviewGoal);
+                    updateDailyProgress();
+                    document.getElementById('goalConfigModal').style.display = 'none';
+                    showToast('Meta diária atualizada!');
+                } else {
+                    showToast('Por favor, insira um número válido (maior que zero).');
+                }
+            });
+            
+            // Evento para alternar tema
+            themeToggle.addEventListener('click', toggleTheme);
+        }
+    </script>
+</body>
+</html>

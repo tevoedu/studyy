@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimulaConcurso | Plataforma de Simulados</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Tema Claro */
+            --primary: #3A90E8;
+            --primary-light: #A9D7F4;
+            --secondary: #8CBF92;
+            --secondary-light: #74C37F;
+            --background: #F7F9FA;
+            --card-bg: #FFFFFF;
+            --text: #2C2C2C;
+            --text-secondary: #4C4C4C;
+            --border: #D6D9DB;
+            --light-gray: #E8EBED;
+            --medium-gray: #B0B3B6;
+            --success: #74C37F;
+            --info: #A9D7F4;
+            --warning: #F4C271;
+            --danger: #E87474;
+            
+            /* Transições */
+            --transition: all 0.3s ease;
+            
+            /* Sombras */
+            --shadow-sm: 0 2px 6px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            
+            /* Bordas */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            
+            /* Espaçamentos */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-xxl: 48px;
+        }
+
+        .dark-theme {
+            /* Tema Escuro */
+            --primary: #5CA8FF;
+            --primary-light: #2A6DB3;
+            --secondary: #74C37F;
+            --secondary-light: #8CBF92;
+            --background: #1E1E1E;
+            --card-bg: #2C2C2C;
+            --text: #F7F9FA;
+            --text-secondary: #D6D9DB;
+            --border: #4C4C4C;
+            --light-gray: #3A3A3A;
+            --medium-gray: #5C5C5C;
+            --success: #74C37F;
+            --info: #3A90E8;
+            --warning: #F4C271;
+            --danger: #E87474;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+            transition: var(--transition);
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            padding: var(--space-lg);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-md);
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md) 0;
+            margin-bottom: var(--space-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo i {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--space-sm);
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text);
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--light-gray);
+            transform: rotate(15deg);
+        }
+
+        /* Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: var(--space-xs);
+            margin-bottom: var(--space-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--light-gray);
+            color: var(--text-secondary);
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: var(--card-bg);
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards e Estatísticas */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .stats-card h3 {
+            margin-bottom: var(--space-sm);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .stats-card p {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Dashboard */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+        }
+
+        button:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-info {
+            background: var(--info);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: #333;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        /* Gráficos */
+        .chart-container {
+            background: var(--card-bg);
+            padding: var(--space-md);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-lg);
+            position: relative;
+            box-shadow: var(--shadow-sm);
+            height: 400px;
+        }
+
+        /* Tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: var(--space-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        th, td {
+            padding: var(--space-md);
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--light-gray);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        tr:hover {
+            background: var(--light-gray);
+        }
+
+        /* Formulários */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-md);
+            margin: var(--space-lg) 0;
+        }
+
+        .input-group {
+            background: var(--light-gray);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: var(--space-sm);
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: var(--space-sm);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            transition: var(--transition);
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(58, 144, 232, 0.15);
+        }
+
+        /* Modais */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            overflow-y: auto;
+            padding: var(--space-lg);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            margin: 0 auto;
+            padding: var(--space-xl);
+            border-radius: var(--radius-xl);
+            max-width: 800px;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+            animation: modalOpen 0.4s ease;
+        }
+
+        .close {
+            position: absolute;
+            right: var(--space-md);
+            top: var(--space-md);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-secondary);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close:hover {
+            color: var(--text);
+            background: var(--light-gray);
+        }
+
+        /* Disciplinas */
+        .disciplina-row {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+            align-items: center;
+        }
+
+        .disciplina-row input {
+            flex: 1;
+        }
+
+        .disciplina-row input[type="number"] {
+            max-width: 100px;
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalOpen {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                text-align: center;
+                padding: var(--space-sm);
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Estado vazio */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-xl);
+            color: var(--text-secondary);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-lg);
+            background: var(--light-gray);
+            margin: var(--space-lg) 0;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: var(--space-md);
+            color: var(--medium-gray);
+        }
+
+        /* Melhorias de UX */
+        .progress-bar {
+            height: 6px;
+            background: var(--light-gray);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: var(--space-sm);
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-critical { background-color: var(--danger); }
+        .status-weak { background-color: var(--warning); }
+        .status-medium { background-color: #FFDD00; }
+        .status-good { background-color: var(--success); }
+        .status-great { background-color: var(--primary); }
+        .status-excellent { background-color: #AA66CC; }
+
+        /* Toggle Theme */
+        .theme-toggle .fa-sun {
+            display: none;
+        }
+
+        .dark-theme .theme-toggle .fa-sun {
+            display: block;
+        }
+
+        .dark-theme .theme-toggle .fa-moon {
+            display: none;
+        }
+        
+        /* Estilos adicionais solicitados */
+        .active-concurso select {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: var(--space-xs) var(--space-sm);
+            margin-left: var(--space-sm);
+        }
+        
+        .disciplina-row button {
+            padding: var(--space-xs) var(--space-sm);
+            min-width: auto;
+        }
+        
+        #simuladosTable button {
+            padding: var(--space-xs) var(--space-sm);
+            font-size: 0.9rem;
+        }
+        
+        #provasList button {
+            padding: var(--space-xs) var(--space-sm);
+            font-size: 0.9rem;
+        }
+        
+        /* Estilos para comparação */
+        .comparison-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .subject-change {
+            padding: var(--space-sm);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-sm);
+            font-size: 0.9rem;
+        }
+
+        .improvement {
+            background-color: rgba(116, 195, 127, 0.2);
+            color: var(--success);
+            border-left: 3px solid var(--success);
+        }
+
+        .decline {
+            background-color: rgba(232, 116, 116, 0.2);
+            color: var(--danger);
+            border-left: 3px solid var(--danger);
+        }
+
+        .attention {
+            border-left: 4px solid var(--warning);
+        }
+        
+        #statsModal .chart-container {
+            height: 300px;
+        }
+        
+        .stats-summary {
+            background: var(--light-gray);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .stats-summary p {
+            margin-bottom: var(--space-sm);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>SimulaConcurso</span>
+            </div>
+            <div class="header-actions">
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="active-concurso">
+                    <i class="fas fa-book"></i>
+                    <select id="provaAtivaSelect"></select>
+                </div>
+            </div>
+        </header>
+        
+        <div class="nav-tabs">
+            <div class="tab active" data-tab="dashboard">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </div>
+            <div class="tab" data-tab="cadastrar-prova">
+                <i class="fas fa-plus-circle"></i> Cadastrar Prova
+            </div>
+            <div class="tab" data-tab="gerenciar-provas">
+                <i class="fas fa-cog"></i> Gerenciar Provas
+            </div>
+        </div>
+        
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard">
+            <div class="dashboard-header">
+                <h1><i class="fas fa-chart-line"></i> Dashboard de Simulados</h1>
+                <div class="dashboard-actions">
+                    <button onclick="openFormModal()">
+                        <i class="fas fa-plus"></i> Novo Simulado
+                    </button>
+                    <button onclick="openCompareModal()">
+                        <i class="fas fa-compress-arrows-alt"></i> Comparar
+                    </button>
+                    <button class="btn-success" onclick="exportData()">
+                        <i class="fas fa-file-export"></i> Exportar
+                    </button>
+                    <button class="btn-info" id="importButton">
+                        <i class="fas fa-file-import"></i> Importar
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stats-card">
+                    <h3>Total de Simulados</h3>
+                    <p id="totalSimulados">0</p>
+                </div>
+                <div class="stats-card">
+                    <h3>Último Desempenho</h3>
+                    <p id="ultimoDesempenho">0%</p>
+                </div>
+                <div class="stats-card">
+                    <h3>Melhor Desempenho</h3>
+                    <p id="melhorDesempenho">0%</p>
+                </div>
+                <div class="stats-card">
+                    <h3>Média Geral</h3>
+                    <p id="mediaGeral">0%</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+
+            <h2><i class="fas fa-history"></i> Histórico de Simulados</h2>
+            <table id="simuladosTable">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Pontuação</th>
+                        <th>Desempenho</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <!-- Cadastrar Prova Tab -->
+        <div class="tab-content" id="cadastrar-prova">
+            <h1><i class="fas fa-plus-circle"></i> Cadastrar Nova Prova</h1>
+            
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Nome da Banca</label>
+                    <input type="text" id="bancaInput" placeholder="Ex: Cesgranrio, FGV, CESPE...">
+                </div>
+                <div class="input-group">
+                    <label>Nome do Concurso</label>
+                    <input type="text" id="concursoInput" placeholder="Ex: Banco do Brasil, INSS, Polícia Federal...">
+                </div>
+                <div class="input-group">
+                    <label>Pontuação Total da Prova</label>
+                    <input type="number" id="pontuacaoTotalInput" placeholder="Ex: 100">
+                </div>
+            </div>
+            
+            <h2><i class="fas fa-book"></i> Disciplinas</h2>
+            <div id="disciplinasContainer">
+                <!-- Disciplinas serão adicionadas dinamicamente -->
+            </div>
+            
+            <button class="btn-info" onclick="addDisciplina()">
+                <i class="fas fa-plus"></i> Adicionar Disciplina
+            </button>
+            
+            <div style="margin-top: var(--space-xl); text-align: center;">
+                <button class="btn-success" onclick="saveProva()">
+                    <i class="fas fa-save"></i> Salvar Prova
+                </button>
+            </div>
+        </div>
+        
+        <!-- Gerenciar Provas Tab -->
+        <div class="tab-content" id="gerenciar-provas">
+            <h1><i class="fas fa-cog"></i> Gerenciar Provas Cadastradas</h1>
+            
+            <div id="provasList" class="form-grid">
+                <!-- Provas serão listadas aqui -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Novo Simulado -->
+    <div id="formModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2><i class="fas fa-plus"></i> Novo Simulado</h2>
+            <div class="form-grid" id="simuladoFormGrid"></div>
+            <button onclick="saveSimulado()">
+                <i class="fas fa-save"></i> Salvar Simulado
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Estatísticas -->
+    <div id="statsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="statsContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal Comparação -->
+    <div id="compareModal" class="modal">
+        <div class="modal-content comparison-modal">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2><i class="fas fa-compress-arrows-alt"></i> Comparação de Simulados</h2>
+            
+            <div class="select-simulado">
+                <select id="simulado1">
+                    <option value="">Selecione o primeiro simulado</option>
+                </select>
+                <select id="simulado2">
+                    <option value="">Selecione o segundo simulado</option>
+                </select>
+            </div>
+
+            <div id="comparisonResults"></div>
+        </div>
+    </div>
+
+    <script>
+        // Estrutura de dados principal
+        let provas = JSON.parse(localStorage.getItem('provas')) || [];
+        let simulados = JSON.parse(localStorage.getItem('simulados')) || [];
+        let provaAtivaId = localStorage.getItem('provaAtivaId') || null;
+        let performanceChart = null;
+
+        // Prova padrão do Banco do Brasil
+        const provaBB = {
+            id: 'bb-cesgranrio',
+            nomeBanca: 'Cesgranrio',
+            nomeConcurso: 'Banco do Brasil',
+            pontuacaoTotal: 100,
+            disciplinas: {
+                'BÁSICOS': {
+                    'Português': { questions: 10, value: 1.5 },
+                    'Inglês': { questions: 5, value: 1 },
+                    'Matemática': { questions: 5, value: 1.5 },
+                    'Atualidades Mercado Financeiro': { questions: 5, value: 1 }
+                },
+                'ESPECÍFICOS': {
+                    'Matemática Financeira': { questions: 5, value: 1.5 },
+                    'Conhecimentos bancários': { questions: 10, value: 1.5 },
+                    'Vendas e Negociação': { questions: 15, value: 1.5 },
+                    'Informática': { questions: 15, value: 1.5 }
+                }
+            }
+        };
+
+        // Função para contar disciplinas
+        function countDisciplinas(prova) {
+            let count = 0;
+            for (const categoria in prova.disciplinas) {
+                count += Object.keys(prova.disciplinas[categoria]).length;
+            }
+            return count;
+        }
+
+        // Inicialização
+        function initialize() {
+            // Garantir que a prova do BB está cadastrada
+            const existeProvaBB = provas.some(p => p.id === 'bb-cesgranrio');
+            if (!existeProvaBB) {
+                provas.push(provaBB);
+                localStorage.setItem('provas', JSON.stringify(provas));
+            }
+            
+            // Definir prova ativa se não houver
+            if (!provaAtivaId) {
+                provaAtivaId = 'bb-cesgranrio';
+                localStorage.setItem('provaAtivaId', provaAtivaId);
+            }
+            
+            // Atualizar interface
+            updateProvasDropdown();
+            updateProvasList();
+            createFormInputs();
+            updateDashboard();
+            renderPerformanceChart();
+            
+            // Configurar eventos
+            document.getElementById('simulado1').addEventListener('change', compareSimulados);
+            document.getElementById('simulado2').addEventListener('change', compareSimulados);
+            document.getElementById('importButton').addEventListener('click', createTempFileInput);
+            
+            // Configurar tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remover classe ativa de todas as tabs
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    // Adicionar classe ativa à tab clicada
+                    tab.classList.add('active');
+                    
+                    // Esconder todos os conteúdos
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    // Mostrar conteúdo correspondente
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Configurar tema
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme');
+                localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+            });
+
+            // Carregar tema salvo
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-theme');
+            }
+        }
+
+        // Criar input file temporário para importação
+        function createTempFileInput() {
+            // Remove o input anterior, se existir
+            if (window.lastTempFileInput) {
+                document.body.removeChild(window.lastTempFileInput);
+                delete window.lastTempFileInput;
+            }
+
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            fileInput.style.display = 'none';
+
+            fileInput.addEventListener('change', importData);
+
+            document.body.appendChild(fileInput);
+            window.lastTempFileInput = fileInput; // guarda referência
+            fileInput.click();
+        }
+
+        // Atualizar dropdown de provas ativas
+        function updateProvasDropdown() {
+            const select = document.getElementById('provaAtivaSelect');
+            select.innerHTML = '';
+            
+            provas.forEach(prova => {
+                const option = document.createElement('option');
+                option.value = prova.id;
+                option.textContent = `${prova.nomeConcurso} (${prova.nomeBanca})`;
+                option.selected = prova.id === provaAtivaId;
+                select.appendChild(option);
+            });
+            
+            // Configurar evento de mudança
+            select.addEventListener('change', function() {
+                provaAtivaId = this.value;
+                localStorage.setItem('provaAtivaId', provaAtivaId);
+                
+                // Atualizar interface com a nova prova ativa
+                createFormInputs();
+                updateDashboard();
+                renderPerformanceChart();
+            });
+        }
+
+        // Atualizar lista de provas para gerenciamento
+        function updateProvasList() {
+            const provasList = document.getElementById('provasList');
+            provasList.innerHTML = '';
+            
+            if (provas.length === 0) {
+                provasList.innerHTML = '<p class="no-data">Nenhuma prova cadastrada ainda</p>';
+                return;
+            }
+            
+            provas.forEach((prova, index) => {
+                const card = document.createElement('div');
+                card.className = 'input-group';
+                card.innerHTML = `
+                    <h3>${prova.nomeConcurso} (${prova.nomeBanca})</h3>
+                    <p>Pontuação Total: ${prova.pontuacaoTotal}</p>
+                    <p>Disciplinas: ${countDisciplinas(prova)}</p>
+                    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                        <button class="btn-warning" onclick="editarProva('${prova.id}')">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn-remove btn-danger" onclick="excluirProva('${prova.id}')">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </div>
+                `;
+                provasList.appendChild(card);
+            });
+        }
+
+        // Adicionar disciplina no cadastro de prova
+        function addDisciplina() {
+            const container = document.getElementById('disciplinasContainer');
+            const index = container.children.length;
+            
+            const div = document.createElement('div');
+            div.className = 'disciplina-row';
+            div.innerHTML = `
+                <input type="text" placeholder="Nome da disciplina" id="disciplina-nome-${index}">
+                <input type="number" placeholder="Qtd. questões" id="disciplina-questoes-${index}" min="1">
+                <input type="number" placeholder="Valor por questão" id="disciplina-valor-${index}" step="0.1" min="0.1">
+                <button class="btn-danger" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+
+        // Salvar nova prova
+        function saveProva() {
+            const nomeBanca = document.getElementById('bancaInput').value.trim();
+            const nomeConcurso = document.getElementById('concursoInput').value.trim();
+            const pontuacaoTotal = parseFloat(document.getElementById('pontuacaoTotalInput').value);
+            
+            if (!nomeBanca || !nomeConcurso || isNaN(pontuacaoTotal)) {
+                alert('Preencha todos os campos obrigatórios!');
+                return;
+            }
+            
+            // Coletar disciplinas
+            const disciplinas = {};
+            const disciplinaRows = document.querySelectorAll('.disciplina-row');
+            
+            if (disciplinaRows.length === 0) {
+                alert('Adicione pelo menos uma disciplina!');
+                return;
+            }
+            
+            disciplinaRows.forEach(row => {
+                const nome = row.querySelector('input[type="text"]').value.trim();
+                const questions = parseInt(row.querySelector('input[type="number"]:nth-child(2)').value);
+                const value = parseFloat(row.querySelector('input[type="number"]:nth-child(3)').value);
+                
+                if (nome && !isNaN(questions) && !isNaN(value)) {
+                    // Adicionar como categoria única por enquanto
+                    if (!disciplinas['GERAL']) disciplinas['GERAL'] = {};
+                    disciplinas['GERAL'][nome] = { questions, value };
+                }
+            });
+            
+            if (Object.keys(disciplinas).length === 0) {
+                alert('Preencha os dados de todas as disciplinas corretamente!');
+                return;
+            }
+            
+            // Criar objeto de prova
+            const novaProva = {
+                id: 'prova-' + Date.now(),
+                nomeBanca,
+                nomeConcurso,
+                pontuacaoTotal,
+                disciplinas
+            };
+            
+            provas.push(novaProva);
+            localStorage.setItem('provas', JSON.stringify(provas));
+            
+            // Limpar formulário
+            document.getElementById('bancaInput').value = '';
+            document.getElementById('concursoInput').value = '';
+            document.getElementById('pontuacaoTotalInput').value = '';
+            document.getElementById('disciplinasContainer').innerHTML = '';
+            
+            // Atualizar interface
+            updateProvasDropdown();
+            updateProvasList();
+            
+            alert('Prova cadastrada com sucesso!');
+        }
+
+        // Editar prova
+        function editarProva(id) {
+            const prova = provas.find(p => p.id === id);
+            if (!prova) return;
+            
+            // Preencher formulário com dados da prova
+            document.getElementById('bancaInput').value = prova.nomeBanca;
+            document.getElementById('concursoInput').value = prova.nomeConcurso;
+            document.getElementById('pontuacaoTotalInput').value = prova.pontuacaoTotal;
+            
+            // Preencher disciplinas
+            const container = document.getElementById('disciplinasContainer');
+            container.innerHTML = '';
+            
+            for (const category in prova.disciplinas) {
+                for (const subject in prova.disciplinas[category]) {
+                    const config = prova.disciplinas[category][subject];
+                    const div = document.createElement('div');
+                    div.className = 'disciplina-row';
+                    div.innerHTML = `
+                        <input type="text" value="${subject}">
+                        <input type="number" value="${config.questions}">
+                        <input type="number" value="${config.value}">
+                        <button class="btn-danger" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    container.appendChild(div);
+                }
+            }
+            
+            // Mudar para aba de cadastro
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('[data-tab="cadastrar-prova"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('cadastrar-prova').classList.add('active');
+            
+            // Remover prova original
+            provas = provas.filter(p => p.id !== id);
+            localStorage.setItem('provas', JSON.stringify(provas));
+        }
+
+        // Excluir prova
+        function excluirProva(id) {
+            if (!confirm('Tem certeza que deseja excluir esta prova? Todos os simulados associados também serão removidos.')) {
+                return;
+            }
+            
+            // Remover prova
+            provas = provas.filter(p => p.id !== id);
+            localStorage.setItem('provas', JSON.stringify(provas));
+            
+            // Remover simulados associados
+            simulados = simulados.filter(s => s.idProva !== id);
+            localStorage.setItem('simulados', JSON.stringify(simulados));
+            
+            // Se a prova excluída era a ativa, definir outra como ativa
+            if (provaAtivaId === id) {
+                provaAtivaId = provas.length > 0 ? provas[0].id : null;
+                localStorage.setItem('provaAtivaId', provaAtivaId);
+            }
+            
+            // Atualizar interface
+            updateProvasDropdown();
+            updateProvasList();
+            updateDashboard();
+            renderPerformanceChart();
+        }
+
+        // Criar inputs para novo simulado baseado na prova ativa
+        function createFormInputs() {
+            const formGrid = document.querySelector('#simuladoFormGrid');
+            formGrid.innerHTML = '';
+            
+            const provaAtiva = provas.find(p => p.id === provaAtivaId);
+            
+            if (!provaAtiva) {
+                formGrid.innerHTML = '<p>Selecione uma prova ativa primeiro</p>';
+                return;
+            }
+            
+            for (const category in provaAtiva.disciplinas) {
+                for (const subject in provaAtiva.disciplinas[category]) {
+                    const config = provaAtiva.disciplinas[category][subject];
+                    const div = document.createElement('div');
+                    div.className = 'input-group';
+                    div.innerHTML = `
+                        <label>${subject} (Erros)</label>
+                        <input type="number" id="${subject}-errors" min="0" 
+                               max="${config.questions}" 
+                               placeholder="0">
+                        <label style="margin-top: 0.5rem">Tempo (min)</label>
+                        <input type="number" id="${subject}-time" placeholder="0">
+                    `;
+                    formGrid.appendChild(div);
+                }
+            }
+        }
+
+        // Atualizar dashboard
+        function updateDashboard() {
+            // Filtrar simulados pela prova ativa
+            const simuladosProvaAtiva = simulados.filter(s => s.idProva === provaAtivaId);
+            simuladosProvaAtiva.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            // Atualizar estatísticas
+            document.getElementById('totalSimulados').textContent = simuladosProvaAtiva.length;
+            
+            if (simuladosProvaAtiva.length > 0) {
+                const ultimo = simuladosProvaAtiva[simuladosProvaAtiva.length - 1];
+                document.getElementById('ultimoDesempenho').textContent = parseFloat(ultimo.totalPercentage).toFixed(1) + '%';
+                
+                const melhor = Math.max(...simuladosProvaAtiva.map(s => parseFloat(s.totalPercentage)));
+                document.getElementById('melhorDesempenho').textContent = melhor.toFixed(1) + '%';
+                
+                const media = simuladosProvaAtiva.reduce((sum, s) => sum + parseFloat(s.totalPercentage), 0) / simuladosProvaAtiva.length;
+                document.getElementById('mediaGeral').textContent = media.toFixed(1) + '%';
+            } else {
+                document.getElementById('ultimoDesempenho').textContent = '0%';
+                document.getElementById('melhorDesempenho').textContent = '0%';
+                document.getElementById('mediaGeral').textContent = '0%';
+            }
+            
+            // Atualizar tabela de histórico
+            const tbody = document.querySelector('#simuladosTable tbody');
+            tbody.innerHTML = '';
+            
+            simuladosProvaAtiva.forEach((simulado, index) => {
+                const percentage = parseFloat(simulado.totalPercentage) || 0;
+                const [feedback, color] = getFeedback(percentage);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date(simulado.date).toLocaleDateString('pt-BR')}</td>
+                    <td>${(simulado.totalScore || 0).toFixed(1)}</td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${percentage}%"></div>
+                        </div>
+                        ${percentage.toFixed(1)}%
+                    </td>
+                    <td>
+                        <span class="status-indicator">
+                            <span class="status-dot" style="background-color: ${color}"></span>
+                            ${feedback}
+                        </span>
+                    </td>
+                    <td>
+                        <button onclick="showStats(${index})">
+                            <i class="fas fa-chart-bar"></i> Detalhes
+                        </button>
+                        <button class="btn-remove btn-danger" onclick="deleteSimulado(${index})">
+                            <i class="fas fa-trash"></i> Remover
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            if (simuladosProvaAtiva.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="no-data">Nenhum simulado registrado ainda</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Salvar novo simulado
+        function saveSimulado() {
+            const provaAtiva = provas.find(p => p.id === provaAtivaId);
+            
+            if (!provaAtiva) {
+                alert('Selecione uma prova ativa primeiro!');
+                return;
+            }
+            
+            const simulado = { 
+                idProva: provaAtivaId,
+                details: {}, 
+                time: {},
+                date: new Date().toISOString(),
+                totalScore: 0,
+                totalPercentage: 0,
+                totalTime: 0
+            };
+
+            let totalPossible = 0;
+            let totalCorrect = 0;
+            let totalQuestions = 0;
+
+            for (const category in provaAtiva.disciplinas) {
+                for (const subject in provaAtiva.disciplinas[category]) {
+                    const config = provaAtiva.disciplinas[category][subject];
+                    const errors = parseInt(document.getElementById(`${subject}-errors`).value) || 0;
+                    const time = parseInt(document.getElementById(`${subject}-time`).value) || 0;
+                    const correct = config.questions - errors;
+                    
+                    simulado.details[subject] = {
+                        errors,
+                        correct,
+                        percentage: ((correct / config.questions) * 100).toFixed(1),
+                        score: correct * config.value
+                    };
+                    
+                    simulado.time[subject] = time;
+                    simulado.totalScore += correct * config.value;
+                    simulado.totalTime += time;
+                    totalPossible += config.questions * config.value;
+                    totalCorrect += correct;
+                    totalQuestions += config.questions;
+
+                    document.getElementById(`${subject}-errors`).value = '';
+                    document.getElementById(`${subject}-time`).value = '';
+                }
+            }
+            
+            simulado.totalPercentage = ((totalCorrect / totalQuestions) * 100).toFixed(1);
+            simulados.push(simulado);
+            localStorage.setItem('simulados', JSON.stringify(simulados));
+            
+            closeModal();
+            updateDashboard();
+            renderPerformanceChart();
+        }
+
+        // Renderizar gráfico de desempenho
+        function renderPerformanceChart() {
+            const container = document.querySelector('.chart-container');
+            
+            if (performanceChart) performanceChart.destroy();
+            container.innerHTML = '<canvas id="performanceChartCanvas"></canvas>';
+            
+            const ctx = document.getElementById('performanceChartCanvas').getContext('2d');
+            const simuladosProvaAtiva = simulados.filter(s => s.idProva === provaAtivaId);
+            const sortedSimulados = [...simuladosProvaAtiva].sort((a, b) => new Date(a.date) - new Date(b.date))
+                .map(s => ({
+                    ...s,
+                    totalPercentage: parseFloat(s.totalPercentage) || 0
+                }));
+
+            if (sortedSimulados.length === 0) {
+                container.innerHTML = '<p class="no-data">⏳ Nenhum simulado registrado ainda</p>';
+                return;
+            }
+
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sortedSimulados.map(s => 
+                        new Date(s.date).toLocaleDateString('pt-BR', { 
+                            day: '2-digit', 
+                            month: 'short' 
+                        })
+                    ),
+                    datasets: [{
+                        label: 'Desempenho Geral (%)',
+                        data: sortedSimulados.map(s => s.totalPercentage),
+                        borderColor: '#3A90E8',
+                        backgroundColor: 'rgba(58, 144, 232, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { 
+                                callback: v => v + '%',
+                                color: document.body.classList.contains('dark-theme') ? '#F7F9FA' : '#2C2C2C'
+                            },
+                            grid: { 
+                                color: document.body.classList.contains('dark-theme') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                                borderDash: [5, 5]
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { 
+                                color: document.body.classList.contains('dark-theme') ? '#F7F9FA' : '#2C2C2C'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`
+                            }
+                        },
+                        legend: {
+                            labels: { 
+                                color: document.body.classList.contains('dark-theme') ? '#F7F9FA' : '#2C2C2C'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Função para exibir detalhes do simulado
+        function showStats(index) {
+            const simuladosProvaAtiva = simulados.filter(s => s.idProva === provaAtivaId);
+            const simulado = simuladosProvaAtiva[index];
+            const statsContent = document.getElementById('statsContent');
+            
+            let html = `
+                <h2>📈 Simulado ${new Date(simulado.date).toLocaleDateString('pt-BR')}</h2>
+                <div class="stats-summary">
+                    <p>📅 Data: ${new Date(simulado.date).toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    <p>🎯 Pontuação Total: ${(simulado.totalScore || 0).toFixed(1)}</p>
+                    <p>📊 Desempenho Geral: <span style="color: ${getFeedback(simulado.totalPercentage)[1]}">${parseFloat(simulado.totalPercentage).toFixed(1)}%</span></p>
+                    <p>⏱ Tempo Total: ${Math.floor(simulado.totalTime/60)}h${simulado.totalTime%60}min</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="detailedChart"></canvas>
+                </div>
+            `;
+            
+            statsContent.innerHTML = html;
+            document.getElementById('statsModal').style.display = 'block';
+            
+            const ctx = document.getElementById('detailedChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(simulado.details),
+                    datasets: [{
+                        label: 'Desempenho por Disciplina (%)',
+                        data: Object.values(simulado.details).map(d => parseFloat(d.percentage)),
+                        backgroundColor: Object.values(simulado.details).map(d => 
+                            getFeedback(d.percentage)[1]
+                        )
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    indexAxis: 'y',
+                    scales: {
+                        x: { 
+                            max: 100,
+                            ticks: { 
+                                color: document.body.classList.contains('dark-theme') ? '#F7F9FA' : '#2C2C2C'
+                            }
+                        },
+                        y: { 
+                            ticks: { 
+                                color: document.body.classList.contains('dark-theme') ? '#F7F9FA' : '#2C2C2C'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Função para excluir simulado
+        function deleteSimulado(index) {
+            if(confirm('Tem certeza que deseja excluir este simulado?')) {
+                const simuladosProvaAtiva = simulados.filter(s => s.idProva === provaAtivaId);
+                const simulado = simuladosProvaAtiva[index];
+                
+                // Encontrar índice global do simulado
+                const globalIndex = simulados.findIndex(s => s.date === simulado.date && s.idProva === provaAtivaId);
+                
+                if (globalIndex !== -1) {
+                    simulados.splice(globalIndex, 1);
+                    localStorage.setItem('simulados', JSON.stringify(simulados));
+                    updateDashboard();
+                    renderPerformanceChart();
+                }
+            }
+        }
+
+        // Obter feedback com base na porcentagem
+        function getFeedback(percentage) {
+            percentage = parseFloat(percentage);
+            if (percentage <= 30) return ['Crítico', '#ff4444'];
+            if (percentage <= 50) return ['Fraco', '#ffa500'];
+            if (percentage <= 65) return ['Médio', '#ffdd00'];
+            if (percentage <= 79) return ['Bom', '#00c851'];
+            if (percentage <= 89) return ['Ótimo', '#4285f4'];
+            return ['Excelente', '#aa66cc'];
+        }
+
+        // Funções de modal
+        function openFormModal() {
+            createFormInputs();
+            document.getElementById('formModal').style.display = 'block';
+        }
+
+        function openCompareModal() {
+            populateSimuladoOptions();
+            document.getElementById('compareModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        }
+
+        // Preencher opções para comparação
+        function populateSimuladoOptions() {
+            const select1 = document.getElementById('simulado1');
+            const select2 = document.getElementById('simulado2');
+            
+            select1.innerHTML = '<option value="">Selecione o primeiro simulado</option>';
+            select2.innerHTML = '<option value="">Selecione o segundo simulado</option>';
+
+            const simuladosProvaAtiva = simulados.filter(s => s.idProva === provaAtivaId);
+            simuladosProvaAtiva.forEach((simulado, index) => {
+                const option = document.createElement('option');
+                const date = new Date(simulado.date).toLocaleDateString('pt-BR');
+                const percentage = parseFloat(simulado.totalPercentage).toFixed(1);
+                option.value = index;
+                option.text = `Simulado ${index + 1} (${date} - ${percentage}%)`;
+                
+                select1.appendChild(option.cloneNode(true));
+                select2.appendChild(option);
+            });
+        }
+
+        // Comparar simulados
+        function compareSimulados() {
+            const index1 = document.getElementById('simulado1').value;
+            const index2 = document.getElementById('simulado2').value;
+            
+            if(!index1 || !index2 || index1 === index2) {
+                alert('Selecione dois simulados diferentes para comparar!');
+                return;
+            }
+
+            const simuladosProvaAtiva = simulados.filter(s => s.idProva === provaAtivaId);
+            const simulado1 = simuladosProvaAtiva[index1];
+            const simulado2 = simuladosProvaAtiva[index2];
+            const comparison = calculateComparison(simulado1, simulado2);
+
+            showComparisonResults(comparison);
+        }
+
+        // Calcular comparação entre simulados
+        function calculateComparison(simuladoA, simuladoB) {
+            const comparison = {
+                melhorDesempenho: null,
+                evolucaoGeral: 0,
+                melhoras: [],
+                pioras: [],
+                pontosAtencao: []
+            };
+
+            const isAFirst = new Date(simuladoA.date) < new Date(simuladoB.date);
+            const maisAntigo = isAFirst ? simuladoA : simuladoB;
+            const maisRecente = isAFirst ? simuladoB : simuladoA;
+
+            Object.keys(maisAntigo.details).forEach(subject => {
+                const percentAntigo = parseFloat(maisAntigo.details[subject].percentage);
+                const percentRecente = parseFloat(maisRecente.details[subject].percentage);
+                const diferenca = percentRecente - percentAntigo;
+
+                if(diferenca > 0) {
+                    comparison.melhoras.push({
+                        disciplina: subject,
+                        diferenca: diferenca.toFixed(1),
+                        antigo: percentAntigo.toFixed(1),
+                        recente: percentRecente.toFixed(1)
+                    });
+                } else if(diferenca < 0) {
+                    comparison.pioras.push({
+                        disciplina: subject,
+                        diferenca: Math.abs(diferenca).toFixed(1),
+                        antigo: percentAntigo.toFixed(1),
+                        recente: percentRecente.toFixed(1)
+                    });
+                }
+            });
+
+            const percentGeralAntigo = parseFloat(maisAntigo.totalPercentage);
+            const percentGeralRecente = parseFloat(maisRecente.totalPercentage);
+            comparison.evolucaoGeral = (percentGeralRecente - percentGeralAntigo).toFixed(1);
+            
+            comparison.melhorDesempenho = percentGeralRecente > percentGeralAntigo 
+                ? maisRecente 
+                : maisAntigo;
+
+            comparison.pioras.forEach(p => {
+                comparison.pontosAtencao.push({
+                    disciplina: p.disciplina,
+                    queda: p.diferenca
+                });
+            });
+
+            return comparison;
+        }
+
+        // Mostrar resultados da comparação
+        function showComparisonResults(comparison) {
+            const resultsDiv = document.getElementById('comparisonResults');
+            let html = `
+                <div class="comparison-section">
+                    <h3>📈 Evolução Geral</h3>
+                    <p>${comparison.evolucaoGeral >= 0 ? 'Melhora' : 'Queda'} de 
+                       <strong class="${comparison.evolucaoGeral >= 0 ? 'improvement' : 'decline'}">
+                           ${Math.abs(comparison.evolucaoGeral)}%
+                       </strong>
+                    </p>
+                    <p>Melhor desempenho: Simulado de 
+                       ${new Date(comparison.melhorDesempenho.date).toLocaleDateString('pt-BR')} 
+                       (${parseFloat(comparison.melhorDesempenho.totalPercentage).toFixed(1)}%)
+                    </p>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="comparison-section">
+                        <h3>🚀 Disciplinas com Melhora</h3>
+                        ${comparison.melhoras.map(m => `
+                            <div class="subject-change improvement">
+                                ${m.disciplina}: +${m.diferenca}% 
+                                (de ${m.antigo}% para ${m.recente}%)
+                            </div>
+                        `).join('')}
+                        ${comparison.melhoras.length === 0 ? '<p>Nenhuma melhoria registrada</p>' : ''}
+                    </div>
+
+                    <div class="comparison-section">
+                        <h3>⚠️ Disciplinas com Queda</h3>
+                        ${comparison.pioras.map(p => `
+                            <div class="subject-change decline">
+                                ${p.disciplina}: -${p.diferenca}% 
+                                (de ${p.antigo}% para ${p.recente}%)
+                            </div>
+                        `).join('')}
+                        ${comparison.pioras.length === 0 ? '<p>Nenhuma queda registrada</p>' : ''}
+                    </div>
+                </div>
+
+                <div class="comparison-section attention">
+                    <h3>🔍 Pontos de Atenção</h3>
+                    ${comparison.pontosAtencao.map(p => `
+                        <p>Atenção! Seu desempenho em <strong>${p.disciplina}</strong> 
+                        caiu ${p.queda}%. Revise os principais temas e refaça exercícios.</p>
+                    `).join('')}
+                    ${comparison.pontosAtencao.length === 0 ? 
+                        '<p>Nenhum ponto crítico identificado</p>' : ''}
+                </div>
+            `;
+
+            resultsDiv.innerHTML = html;
+        }
+
+        // Exportar dados
+        function exportData() {
+            const data = {
+                provas: provas,
+                simulados: simulados,
+                provaAtivaId: provaAtivaId
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dateStr = new Date().toISOString().split('T')[0];
+            const blob = new Blob([dataStr], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `backup-simulados-${dateStr}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Importar dados
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Verificar se é o formato antigo (apenas array de simulados)
+                    if (Array.isArray(importedData)) {
+                        // Converter para o novo formato
+                        provas = [provaBB];
+                        simulados = importedData.map(simulado => ({
+                            ...simulado,
+                            idProva: 'bb-cesgranrio'
+                        }));
+                        provaAtivaId = 'bb-cesgranrio';
+                    } else {
+                        // Usar novo formato
+                        provas = importedData.provas || [];
+                        simulados = importedData.simulados || [];
+                        provaAtivaId = importedData.provaAtivaId || 'bb-cesgranrio';
+                    }
+
+                    // Garantir que a prova do BB está presente
+                    const hasBB = provas.some(p => p.id === 'bb-cesgranrio');
+                    if (!hasBB) {
+                        provas.push(provaBB);
+                    }
+
+                    // Salvar no localStorage
+                    localStorage.setItem('provas', JSON.stringify(provas));
+                    localStorage.setItem('simulados', JSON.stringify(simulados));
+                    localStorage.setItem('provaAtivaId', provaAtivaId);
+
+                    // Atualizar interface
+                    updateProvasDropdown();
+                    updateProvasList();
+                    updateDashboard();
+                    renderPerformanceChart();
+                    alert('Dados importados com sucesso!');
+                } catch (error) {
+                    alert('Erro na importação: ' + error.message);
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // Inicializar a aplicação
+        window.onload = initialize;
+    </script>
+</body>
+</html>
